@@ -18,14 +18,15 @@ using System.ComponentModel;
 
 namespace IOships
 {
-    /// <summary>
-    /// Logika interakcji dla klasy MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        CargoShipCollection cargoShips;
+        public SeriesCollection SeriesCollection { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+            cargoShips = new CargoShipCollection(shipDataGrid);
 
             SeriesCollection = new SeriesCollection
             {
@@ -43,20 +44,35 @@ namespace IOships
                 }
             };
 
-            Ship ship0 = new Ship(0, shipDataGrid);
-            Ship ship1 = new Ship(1, shipDataGrid);
+            cargoShips.Add(2, 1);
 
             DataContext = this;
         }
 
-        public SeriesCollection SeriesCollection { get; set; }
-        public SeriesCollection Ship1Data { get; set; }
-        public SeriesCollection Ship2Data { get; set; }
-        public string ship1text { get; set; }
+        private void btn_ship_Click(object sender, RoutedEventArgs e)
+        {
+            (sender as Button).IsEnabled = false;
+
+            lbl_status.Content = "Starting data generation";
+            Random r = new Random();
+            foreach (Ship ship in cargoShips)
+                ship.shipData[0].Values.Add(r.Next(0, 100));
+
+            lbl_status.Content = "Finished data generation";
+
+            if (cargoShips.Count<5)
+                cargoShips.Add(2, 1);
+
+            lbl_status.Content = "Cargo ready to be shipped";
+
+            (sender as Button).IsEnabled = true;
+        }
     }
 
     public class Ship : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public CartesianChart ship;
         public Label average;
         public SeriesCollection shipData { get; set; }
@@ -70,15 +86,17 @@ namespace IOships
 
         private void setupPlot(int id, Grid shipDataGrid)
         {
-            shipData = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    Values = new ChartValues<int>{86, 43, 66, 43, 75 }
-                }
-            };
+            Random r = new Random();
+
+            shipData = new SeriesCollection{ new LineSeries{Values = new ChartValues<int>()} };
+            shipData[0].Values.CollectionChanged += recalculateAverage;
+
+            for(int i=0; i<3; i++)
+                shipData[0].Values.Add(r.Next(0, 100));
 
             ship = new CartesianChart();
+            ship.Hoverable = false;
+            ship.Padding = new Thickness(0, 0, 0, 5);
             shipDataGrid.Children.Add(ship);
             Grid.SetRow(ship, id + 1);
             Grid.SetColumn(ship, 1);
@@ -87,6 +105,8 @@ namespace IOships
             dataBinding.Source = this;
 
             ship.SetBinding(CartesianChart.SeriesProperty, dataBinding);
+
+            shipData[0].Values.CollectionChanged += recalculateAverage;
         }
 
         private void setupLabel(int id, Grid shipDataGrid)
@@ -108,14 +128,49 @@ namespace IOships
             average.SetBinding(Label.ContentProperty, textBinding);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public void updateLabel(double mean)
+        {
+            avg = $"Avg: {(int)mean}";
+            OnPropertyChanged("avg");
+        }
+
+        private void recalculateAverage(object sender, EventArgs args)
+        {
+            double mean = 0;
+            foreach (int num in shipData[0].Values)
+                mean += num;
+            mean /= shipData[0].Values.Count;
+
+            updateLabel(mean);
+        }
 
         protected void OnPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                handler(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+    }
+
+    public class CargoShipCollection : List<Ship>
+    {
+        private Grid boundGrid;
+        private int iterator = 0;
+
+        public CargoShipCollection(Grid boundGrid)
+        {
+            this.boundGrid = boundGrid;
+        }
+
+        public void Add(int width, int height)
+        {
+            if (iterator == 5)
+                throw new IndexOutOfRangeException("Trying to add too many ships!");
+
+            this.Add(new Ship(iterator, boundGrid));
+            iterator++;
         }
     }
 }
