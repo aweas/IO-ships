@@ -6,45 +6,67 @@
         xmlns:local="clr-namespace:IOships"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="502.805" Width="754.207">
+        Title="MainWindow" Height="502.805" Width="754.207" MinWidth="754.207" MinHeight="502.805">
     <Grid Background="#2f2c38">
-        <lvc:PieChart Name="chart_containers" Series="{Binding SeriesCollection}" 
-                      LegendLocation="Right" InnerRadius="100" Margin="10,186,10.4,22.2">
+        <StatusBar Margin="0,0,0,-0.4" HorizontalContentAlignment="Right" FlowDirection="RightToLeft" Grid.Row="2" Grid.ColumnSpan="2" Height="24" VerticalAlignment="Bottom">
+            <Label x:Name="lbl_status" Content="Cargo ready to be shipped" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="5,0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
+        </StatusBar>
+        <Border BorderBrush="#534e63" BorderThickness="1,1,1,1" CornerRadius="16,16,8,8" Background="#645f72" Margin="4.6,0,0,0" Grid.RowSpan="2" Grid.Column="1">
+            <Grid Margin="0.2,0.2,0.2,-0.8"  x:Name="shipDataGrid" x:FieldModifier="public">
+                <Grid.Resources>
+                    <Style TargetType="lvc:Axis">
+                        <Setter Property="ShowLabels" Value="False"></Setter>
+                        <Setter Property="IsEnabled" Value="False"></Setter>
+                    </Style>
+                    <Style TargetType="lvc:LineSeries">
+                        <Setter Property="Fill" Value="#645f72"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120*"/>
+                    <ColumnDefinition Width="129*"/>
+                    <ColumnDefinition Width="119*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="26*"/>
+                    <RowDefinition Height="69*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="70*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Column="1" BorderBrush="#9794a1" Grid.RowSpan="6" BorderThickness="2, 0, 0, 0" Grid.ColumnSpan="2" Margin="0,0,0,-0.4"/>
+                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="0" BorderThickness="0, 0, 0, 2" Margin="0,0,0,0.4"/>
+                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="1" BorderThickness="0, 0, 0, 1" Margin="0,68.6,0,69.4" Grid.RowSpan="3"/>
+                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="3" BorderThickness="0, 0, 0, 1" Margin="0,0.2,0,0.4"/>
+                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="3" BorderThickness="0, 0, 0, 1" Margin="0,69.2,0,0" Grid.RowSpan="2"/>
+                <Label x:Name="label" Content="Ship dimensions" Margin="3,-2,3,0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Height="28" HorizontalAlignment="Center"/>
+                <Label x:Name="label_Copy" Content="Containters taken" Margin="63,0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Grid.Column="1" Height="26" HorizontalAlignment="Center" Grid.ColumnSpan="2"/>
+                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" BorderThickness="0, 0, 0, 1" Margin="0,26,0,0.2" Grid.RowSpan="2"/>
+                <Label x:Name="label1" Grid.Column="2" Grid.Row="1" FontFamily="Segoe UI Semibold" Foreground="White" Margin="0.541,9.6,0.2,0.2" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Center" FontSize="24" />
+                <lvc:CartesianChart Series="{Binding Ship1Data}" Margin="0" Grid.Column="1" Hoverable="False" Grid.Row="1"/>
+            </Grid>
+        </Border>
+        <Grid Height="70" Margin="0,5,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2">
+            <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="SHIP&#xA;GOODS" Margin="336,10,336.8,10" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="76" Height="50" VerticalAlignment="Bottom" MinWidth="76" MinHeight="50"/>
+        </Grid>
+        <Label x:Name="label_Copy1" Content="CARGO&#xD;&#xA;MANAGER" VerticalAlignment="Top" Foreground="White" FontFamily="Berlin Sans FB" FontSize="48" HorizontalAlignment="Left" Height="162" Width="374" Grid.RowSpan="2"/>
+        <lvc:PieChart x:Name="chart_containers" Series="{Binding SeriesCollection}" 
+            LegendLocation="Right" InnerRadius="50" Margin="10,23.2,10.4,22" Grid.Row="1">
             <lvc:PieChart.ChartLegend>
-                <lvc:DefaultLegend BulletSize="20" Foreground="White"></lvc:DefaultLegend>
+                <lvc:DefaultLegend BulletSize="20" Foreground="White"/>
             </lvc:PieChart.ChartLegend>
             <lvc:PieChart.DataTooltip>
-                <lvc:DefaultTooltip BulletSize="20"></lvc:DefaultTooltip>
+                <lvc:DefaultTooltip BulletSize="20"/>
             </lvc:PieChart.DataTooltip>
         </lvc:PieChart>
-        <StatusBar Margin="0,0,0,-0.4" HorizontalContentAlignment="Right" FlowDirection="RightToLeft" Grid.Row="1" Grid.ColumnSpan="2" Height="24" VerticalAlignment="Bottom">
-            <Label x:Name="lbl_status" Content="lbl__status" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="5,0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
-        </StatusBar>
-        <Grid Height="375" Margin="0.6,0,-0.2,0" VerticalAlignment="Top" Grid.Column="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="122*"/>
-                <ColumnDefinition Width="253*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="26*"/>
-                <RowDefinition Height="69*"/>
-                <RowDefinition Height="70*"/>
-                <RowDefinition Height="70*"/>
-                <RowDefinition Height="70*"/>
-                <RowDefinition Height="70*"/>
-            </Grid.RowDefinitions>
-            <Label x:Name="label" Content="Ship dimensions" Margin="0,-2,0,0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Height="28" HorizontalAlignment="Center"/>
-            <Label x:Name="label_Copy" Content="Containters taken" Margin="0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Grid.Column="1" Height="26" HorizontalAlignment="Center"/>
-        </Grid>
-        <Grid Height="70" Margin="0,4.8,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="1">
-            <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="SHIP&#xA;GOODS" Margin="0,0,337,10" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" Height="49" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
-        </Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="375*"/>
+            <RowDefinition Height="109*"/>
+            <RowDefinition Height="267*"/>
             <RowDefinition Height="98*"/>
         </Grid.RowDefinitions>
     </Grid>
