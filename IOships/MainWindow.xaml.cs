@@ -109,7 +109,7 @@ namespace IOships
 
             logger.Trace("Finished data generation for container {0}", shipID);
 
-            int delay = r.Next(1, 200) * 10;
+            int delay = r.Next(1, 200) * 100;
             System.Threading.Thread.Sleep(delay);
             return data;
         }

@@ -55,12 +55,9 @@ namespace IOships
             shipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
             shipData[0].Values.CollectionChanged += RecalculateAverage;
 
-            for (int i = 0; i < 3; i++)
-                shipData[0].Values.Add(r.Next(0, 100));
-
             ship = new CartesianChart();
             ship.Hoverable = false;
-            ship.Padding = new Thickness(0, 0, 0, 5);
+            ship.Margin = new Thickness(0, 0, 0, 5);
             shipDataGrid.Children.Add(ship);
             Grid.SetRow(ship, id + 1);
             Grid.SetColumn(ship, 1);
@@ -120,9 +117,10 @@ namespace IOships
         /// <summary>
         /// Generates containers to be taken this turn according to given strategy
         /// </summary>
-        public async Task<Containers> GenerateContainers()
+        public Containers GenerateContainers()
         {
             logger.Trace($"Starting strategy for ship {ID}");
+
             if (dataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
@@ -188,7 +186,7 @@ namespace IOships
             logger.Debug("Starting data generation threads");
             foreach (Ship s in this)
             {
-                Task<Containers> generateData = s.GenerateContainers();
+                Task<Containers> generateData = Task.Run(() => s.GenerateContainers());
                 results.Add(generateData);
             }
 
