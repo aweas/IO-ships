@@ -15,6 +15,8 @@ using LiveCharts;
 using LiveCharts.Wpf;
 using LiveCharts.Defaults;
 using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace IOships
 {
@@ -22,6 +24,10 @@ namespace IOships
     {
         CargoShipCollection cargoShips;
         public SeriesCollection SeriesCollection { get; set; }
+
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public int turn;
 
         public MainWindow()
         {
@@ -44,7 +50,10 @@ namespace IOships
                 }
             };
 
-            cargoShips.Add(2, 1);
+            for(int i=0; i<5; i++)
+                cargoShips.Add(2, 1);
+
+            cargoShips.SetStrategy(new RandomStrategy());
 
             DataContext = this;
         }
@@ -53,124 +62,56 @@ namespace IOships
         {
             (sender as Button).IsEnabled = false;
 
-            lbl_status.Content = "Starting data generation";
-            Random r = new Random();
-            foreach (Ship ship in cargoShips)
-                ship.shipData[0].Values.Add(r.Next(0, 100));
+            new Task(() => GenerateLoadingInstructions()).Start();
 
-            lbl_status.Content = "Finished data generation";
-
-            if (cargoShips.Count<5)
-                cargoShips.Add(2, 1);
-
-            lbl_status.Content = "Cargo ready to be shipped";
-
-            (sender as Button).IsEnabled = true;
-        }
-    }
-
-    public class Ship : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public CartesianChart ship;
-        public Label average;
-        public SeriesCollection shipData { get; set; }
-        public String avg { get; set; }
-
-        public Ship(int id, Grid shipDataGrid)
-        {
-            setupLabel(id, shipDataGrid);
-            setupPlot(id, shipDataGrid);
+            lbl_status.Content = "Instructions generation in process";
         }
 
-        private void setupPlot(int id, Grid shipDataGrid)
+        private async void GenerateLoadingInstructions()
         {
-            Random r = new Random();
+            logger.Info("Loading instructions generation started");
+            Task<Dictionary<int, Containers>> res = cargoShips.LoadContainers();
 
-            shipData = new SeriesCollection{ new LineSeries{Values = new ChartValues<int>()} };
-            shipData[0].Values.CollectionChanged += recalculateAverage;
-
-            for(int i=0; i<3; i++)
-                shipData[0].Values.Add(r.Next(0, 100));
-
-            ship = new CartesianChart();
-            ship.Hoverable = false;
-            ship.Padding = new Thickness(0, 0, 0, 5);
-            shipDataGrid.Children.Add(ship);
-            Grid.SetRow(ship, id + 1);
-            Grid.SetColumn(ship, 1);
-
-            Binding dataBinding = new Binding("shipData");
-            dataBinding.Source = this;
-
-            ship.SetBinding(CartesianChart.SeriesProperty, dataBinding);
-
-            shipData[0].Values.CollectionChanged += recalculateAverage;
-        }
-
-        private void setupLabel(int id, Grid shipDataGrid)
-        {
-            avg = "dupa";
-            average = new Label();
-            average.FontFamily = new System.Windows.Media.FontFamily("Segoe UI Semibold");
-            average.Foreground = new SolidColorBrush(Colors.White);
-            average.VerticalAlignment = VerticalAlignment.Bottom;
-            average.HorizontalAlignment = HorizontalAlignment.Center;
-            average.FontSize = 24;
-            shipDataGrid.Children.Add(average);
-            Grid.SetRow(average, id + 1);
-            Grid.SetColumn(average, 2);
-
-            Binding textBinding = new Binding("avg");
-            textBinding.Source = this;
-
-            average.SetBinding(Label.ContentProperty, textBinding);
-        }
-
-        public void updateLabel(double mean)
-        {
-            avg = $"Avg: {(int)mean}";
-            OnPropertyChanged("avg");
-        }
-
-        private void recalculateAverage(object sender, EventArgs args)
-        {
-            double mean = 0;
-            foreach (int num in shipData[0].Values)
-                mean += num;
-            mean /= shipData[0].Values.Count;
-
-            updateLabel(mean);
-        }
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
+            Dictionary<int, Containers> results = await res;
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+                lbl_status.Content = "Cargo ready to be shipped";
+                btn_ship.IsEnabled = true;
+            }));
+            logger.Info("Loading instructions generation finished");
         }
     }
 
-    public class CargoShipCollection : List<Ship>
+    public interface IStrategy
     {
-        private Grid boundGrid;
-        private int iterator = 0;
+        Containers GenerateData(int shipID);
+    }
 
-        public CargoShipCollection(Grid boundGrid)
+    public class RandomStrategy : IStrategy
+    {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private Container RandomContainer()
         {
-            this.boundGrid = boundGrid;
+            Random r = new Random();
+            return new Container(r.Next(), r.Next(), r.Next(), r.Next(), r.Next());
         }
 
-        public void Add(int width, int height)
+        public Containers GenerateData(int shipID)
         {
-            if (iterator == 5)
-                throw new IndexOutOfRangeException("Trying to add too many ships!");
+            logger.Trace("Starting data generation for container {0}", shipID);
 
-            this.Add(new Ship(iterator, boundGrid));
-            iterator++;
+            Containers data = new Containers();
+            Random r = new Random();
+            int cap = r.Next(1, 100);
+            for (int i = 0; i < cap; i++)
+                data.Add(RandomContainer());
+
+            logger.Trace("Finished data generation for container {0}", shipID);
+
+            int delay = r.Next(1, 200) * 10;
+            System.Threading.Thread.Sleep(delay);
+            return data;
         }
     }
 }
