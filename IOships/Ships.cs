@@ -35,7 +35,7 @@ namespace IOships
         private Label average;
         public String avg { get; set; }
         public SeriesCollection shipData { get; set; }
-        private Containers containersHistory;
+        private ContainersCollection containersHistory;
 
         public IStrategy dataGenStrategy;
 
@@ -95,36 +95,35 @@ namespace IOships
         }
         #endregion
 
-        public void UpdateLabel(double mean)
-        {
-            avg = $"Avg: {(int)mean}";
-
-            logger.Trace($"Updating label if {ID} to \"{avg}\"");
-            OnPropertyChanged("avg");
-        }
-
+        /// <summary>
+        /// Recalculates average for how many containers has ship recently taken
+        /// </summary>
         private void RecalculateAverage(object sender, EventArgs args)
         {
             double mean = 0;
             foreach (int num in shipData[0].Values)
                 mean += num;
             mean /= shipData[0].Values.Count;
+            avg = $"Avg: {(int)mean}";
 
             logger.Trace($"New mean calculated for ID {ID}: {mean}");
-            UpdateLabel(mean);
+
+            logger.Trace($"Updating label if {ID} to \"{avg}\"");
+            OnPropertyChanged("avg");
+
         }
 
         /// <summary>
         /// Generates containers to be taken this turn according to given strategy
         /// </summary>
-        public Containers GenerateContainers()
+        public ContainersCollection GenerateContainers()
         {
             logger.Trace($"Starting strategy for ship {ID}");
 
             if (dataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
-            containersHistory = dataGenStrategy.GenerateData(ID);
+            containersHistory = dataGenStrategy.GenerateData(ID, null);
             logger.Trace($"Finished strategy for ID {ID}");
 
             shipData[0].Values.Add(containersHistory.Count);
@@ -152,12 +151,22 @@ namespace IOships
         private Grid boundGrid;
         private int iterator = 0;
 
+        /// <summary>
+        /// Binds collection to grid
+        /// </summary>
+        /// <param name="boundGrid">Grid in which ships' statistics will be displayed</param>
         public CargoShipCollection(Grid boundGrid)
         {
             this.boundGrid = boundGrid;
         }
 
-        public void Add(int width, int height)
+        /// <summary>
+        /// Adds new ship to collection
+        /// </summary>
+        /// <param name="width">Width of ship's hold</param>
+        /// <param name="height">Height of ship's hold</param>
+        /// <param name="depth">Depth of ship's hold</param>
+        public void Add(int width, int height, int depth)
         {
             if (iterator == 5)
                 throw new IndexOutOfRangeException("Trying to add too many ships!");
@@ -166,6 +175,10 @@ namespace IOships
             iterator++;
         }
 
+        /// <summary>
+        /// Sets loading strategy for all ships in collection
+        /// </summary>
+        /// <param name="strategy">Strategy that will be used to load containers onto ship</param>
         public void SetStrategy(IStrategy strategy)
         {
             foreach (Ship s in this)
@@ -173,20 +186,20 @@ namespace IOships
         }
 
         /// <summary>
-        /// Asynchronously generates containers to be taken this turn for all ships according to provided strategy
+        /// Asynchronously generates containers to be loaded this turn for all ships according to provided strategy
         /// </summary>
         /// <returns>
         /// Task resulting in dictionary of containers for each ship
         /// </returns>
-        public async Task<Dictionary<int, Containers>> LoadContainers()
+        public async Task<Dictionary<int, ContainersCollection>> LoadContainers()
         {
-            Dictionary<int, Containers> answers = new Dictionary<int, Containers>();
-            List<Task<Containers>> results = new List<Task<Containers>>();
+            Dictionary<int, ContainersCollection> answers = new Dictionary<int, ContainersCollection>();
+            List<Task<ContainersCollection>> results = new List<Task<ContainersCollection>>();
 
             logger.Debug("Starting data generation threads");
             foreach (Ship s in this)
             {
-                Task<Containers> generateData = Task.Run(() => s.GenerateContainers());
+                Task<ContainersCollection> generateData = Task.Run(() => s.GenerateContainers());
                 results.Add(generateData);
             }
 
@@ -194,7 +207,7 @@ namespace IOships
             for (int i=0; i<this.Count; i++)
             {
                 logger.Trace("Waiting for thread {0}", i);
-                Containers res = await results[i];
+                ContainersCollection res = await results[i];
                 logger.Trace("Got result from thread {0}", i);
                 answers.Add(this[i].ID, res);
             }

@@ -19,6 +19,14 @@ namespace IOships
         public int turnCreated;
         public int? turnDeleted;
 
+        /// <summary>
+        /// Creates container structure with given parameters
+        /// </summary>
+        /// <param name="width">Width of the container</param>
+        /// <param name="height">Height of the container</param>
+        /// <param name="depth">Depth of the container</param>
+        /// <param name="id">Container ID</param>
+        /// <param name="turnCreated">Turn in which the container arrived</param>
         public Container(int width, int height, int depth, int id, int turnCreated)
         {
             this.width = width;
@@ -33,19 +41,24 @@ namespace IOships
     /// <summary>
     /// Provides wrapper for List<Container> so that new ships can be added seamlessly
     /// </summary>
-    public class Containers : List<Container>
+    public class ContainersCollection : List<Container>
     {
         public void Add(int width, int height, int depth, int id)
         {
             Add(new Container (width, height, depth, id, 2));
         }
 
-        public void Add(Containers conts)
+        public void Add(ContainersCollection conts)
         {
             foreach (Container a in conts)
                 Add(a);
         }
 
+        /// <summary>
+        /// Calculates statistics for containers in hold
+        /// </summary>
+        /// <param name="currentTurn">Current turn in simulation</param>
+        /// <returns>Dictionary of containers' age and count</returns>
         public Dictionary<int, int> getAgeAndCount(int currentTurn)
         {
             Dictionary<int, int> ages = new Dictionary<int, int>();
@@ -59,6 +72,15 @@ namespace IOships
             }
 
             return ages;
+        }
+
+        override public string ToString()
+        {
+            string res = "";
+            foreach (Container i in this)
+                res += i.id.ToString()+"; ";
+
+            return res;
         }
     }
 }

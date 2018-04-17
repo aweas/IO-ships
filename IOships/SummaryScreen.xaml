@@ -1,0 +1,22 @@
+﻿<Window x:Class="IOships.SummaryScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IOships"
+        mc:Ignorable="d"
+        Title="Summary" Height="459.086" Width="357.482" WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True" WindowStyle="None"  MouseDown="Window_MouseDown">
+    <Grid Background="#2f2c38">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+        <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="Close" Margin="0" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" Width="62" Height="52" VerticalAlignment="Center" MinWidth="76" MinHeight="50" Grid.Row="1" HorizontalAlignment="Center" Click="btn_ship_Click"/>
+        <ScrollViewer Margin="10,10,9.5,0" VerticalScrollBarVisibility="Auto">
+            <TextBlock TextWrapping="Wrap" Background="#645f72" Foreground="White" x:Name="tb_summary" Height="Auto" Width="338"/>
+        </ScrollViewer>
+        <ScrollBar HorizontalAlignment="Left" Margin="562,244,-221.5,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
