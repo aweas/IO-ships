@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="Close" Margin="0" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" Width="62" Height="52" VerticalAlignment="Center" MinWidth="76" MinHeight="50" Grid.Row="1" HorizontalAlignment="Center" Click="btn_ship_Click"/>
         <ScrollViewer Margin="10,10,9.5,0" VerticalScrollBarVisibility="Auto">
-            <TextBlock TextWrapping="Wrap" Background="#645f72" Foreground="White" x:Name="tb_summary" Height="Auto" Width="338"/>
+            <TextBlock TextWrapping="Wrap" Text="{Binding Value}" Background="#645f72" Foreground="White" x:Name="tb_summary" Height="Auto" Width="338"/>
         </ScrollViewer>
         <ScrollBar HorizontalAlignment="Left" Margin="562,244,-221.5,0" VerticalAlignment="Top"/>
 

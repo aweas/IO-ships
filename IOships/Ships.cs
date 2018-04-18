@@ -110,7 +110,6 @@ namespace IOships
 
             logger.Trace($"Updating label if {ID} to \"{avg}\"");
             OnPropertyChanged("avg");
-
         }
 
         /// <summary>

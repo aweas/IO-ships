@@ -21,7 +21,7 @@ namespace IOships
     /// </summary>
     public partial class SummaryScreen : Window
     {
-        public ObservableString Message;
+        public ObservableString Message { get; set; }
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -30,13 +30,13 @@ namespace IOships
             InitializeComponent();
             Message = new ObservableString("test");
 
-            DataContext = Message;
+            DataContext = this;
         }
 
         public void AddToMessage(string msg)
         {
-            //Message += msg;
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => tb_summary.Text += msg));
+            Message += msg;
+            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => tb_summary.Text += msg));
             logger.Trace("Updated summary. New value: {0}", Message.Value);
         }
 
@@ -49,6 +49,11 @@ namespace IOships
         {
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
+        }
+
+        private void MessagePropertiModifiedHandler(object sender, PropertyChangedEventArgs e)
+        {
+
         }
     }
 
