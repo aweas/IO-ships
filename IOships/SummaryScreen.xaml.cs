@@ -28,15 +28,15 @@ namespace IOships
         public SummaryScreen()
         {
             InitializeComponent();
-            Message = new ObservableString("test");
+            Message = new ObservableString("Please wait");
 
-            DataContext = this;
+            DataContext = Message;
         }
 
         public void AddToMessage(string msg)
         {
-            Message += msg;
-            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() => tb_summary.Text += msg));
+            Message.Add(msg);
+
             logger.Trace("Updated summary. New value: {0}", Message.Value);
         }
 
@@ -50,15 +50,12 @@ namespace IOships
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
         }
-
-        private void MessagePropertiModifiedHandler(object sender, PropertyChangedEventArgs e)
-        {
-
-        }
     }
 
     public class ObservableString: INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private string value;
         public string Value
         {
@@ -66,7 +63,16 @@ namespace IOships
             set { this.value = value; NotifyPropertyChanged("Value"); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ObservableString(string val)
+        {
+            Value = val;
+        }
+
+        public void Add(string msg)
+        {
+            Value += msg;
+        }
+
         private void NotifyPropertyChanged(String propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
@@ -76,16 +82,5 @@ namespace IOships
             }
         }
 
-        public ObservableString() {}
-
-        public ObservableString(string val)
-        {
-            Value = val;
-        }
-
-        public static ObservableString operator +(ObservableString c, string msg)
-        {
-            return new ObservableString(c.Value + msg);
-        }
     }
 }
