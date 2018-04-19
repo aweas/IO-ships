@@ -65,10 +65,11 @@ namespace IOships
         {
             if (ss != null)
                 ss.Close();
+            int mode = cb_mode.SelectedIndex;
 
             (sender as Button).IsEnabled = false;
 
-            new Task(() => GenerateLoadingInstructions()).Start();
+            new Task(() => GenerateLoadingInstructions(mode)).Start();
 
             lbl_status.Content = "Instructions generation in process";
 
@@ -79,10 +80,10 @@ namespace IOships
         /// <summary>
         /// Function that generates instruction for each ship and displays it in summary screen
         /// </summary>
-        private async void GenerateLoadingInstructions()
+        private async void GenerateLoadingInstructions(int mode)
         {
             logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, ContainersCollection>> res = cargoShips.LoadContainers(CargoShipCollection.LoadingMode.Collectionwise);
+            Task<Dictionary<int, ContainersCollection>> res = cargoShips.LoadContainers((LoadingMode)mode);
 
             Dictionary<int, ContainersCollection> results = await res;
 

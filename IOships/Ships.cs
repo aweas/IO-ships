@@ -166,8 +166,6 @@ namespace IOships
         private int iterator = 0;
         public ICollectionwiseStrategy dataGenStrategy;
 
-        public enum LoadingMode{ Collectionwise, Elementwise }
-
         /// <summary>
         /// Binds collection to grid
         /// </summary>

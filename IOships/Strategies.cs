@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace IOships
 {
+    public enum LoadingMode { Elementwise, Collectionwise }
+
     /// <summary>
     /// Interface which needs to be implemented by all shipwise strategies that ships can take to load cargo
     /// </summary>
