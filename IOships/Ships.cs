@@ -34,10 +34,11 @@ namespace IOships
         private CartesianChart ship;
         private Label average;
         public String avg { get; set; }
+        public SeriesCollection shipHistory { get; set; }
         public SeriesCollection shipData { get; set; }
-        private ContainersCollection containersHistory;
+        public ContainersCollection containersHistory;
 
-        public IStrategy dataGenStrategy;
+        public IShipwiseStrategy dataGenStrategy;
 
         public Ship(int ID, Grid shipDataGrid)
         {
@@ -53,7 +54,9 @@ namespace IOships
 
             logger.Info("Initializing ship's plot");
             shipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
-            shipData[0].Values.CollectionChanged += RecalculateAverage;
+            shipHistory = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
+            shipHistory[0].Values.CollectionChanged += UpdateDisplay;
+            shipHistory[0].Values.CollectionChanged += RecalculateAverage;
 
             ship = new CartesianChart();
             ship.Hoverable = false;
@@ -67,7 +70,6 @@ namespace IOships
 
             ship.SetBinding(CartesianChart.SeriesProperty, dataBinding);
 
-            shipData[0].Values.CollectionChanged += RecalculateAverage;
             logger.Info("Initializing ship's plot finished");
         }
 
@@ -101,15 +103,28 @@ namespace IOships
         private void RecalculateAverage(object sender, EventArgs args)
         {
             double mean = 0;
-            foreach (int num in shipData[0].Values)
+
+            foreach (int num in shipHistory[0].Values)
                 mean += num;
-            mean /= shipData[0].Values.Count;
+
+            mean /= shipHistory[0].Values.Count;
             avg = $"Avg: {(int)mean}";
 
             logger.Trace($"New mean calculated for ID {ID}: {mean}");
 
             logger.Trace($"Updating label if {ID} to \"{avg}\"");
             OnPropertyChanged("avg");
+        }
+
+        /// <summary>
+        /// Updates object bound to ship's graph
+        /// </summary>
+        private void UpdateDisplay(object sender, EventArgs args)
+        {
+            this.shipData[0].Values.Add(containersHistory.Count);
+
+            if (shipData[0].Values.Count == 5)
+                shipData[0].Values.RemoveAt(0);
         }
 
         /// <summary>
@@ -122,10 +137,10 @@ namespace IOships
             if (dataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
-            containersHistory = dataGenStrategy.GenerateData(ID, null);
+            containersHistory = dataGenStrategy.GenerateData(this);
             logger.Trace($"Finished strategy for ID {ID}");
 
-            shipData[0].Values.Add(containersHistory.Count);
+            shipHistory[0].Values.Add(containersHistory.Count);
 
             return containersHistory;
         }
@@ -149,6 +164,9 @@ namespace IOships
 
         private Grid boundGrid;
         private int iterator = 0;
+        public ICollectionwiseStrategy dataGenStrategy;
+
+        public enum LoadingMode{ Collectionwise, Elementwise }
 
         /// <summary>
         /// Binds collection to grid
@@ -177,11 +195,20 @@ namespace IOships
         /// <summary>
         /// Sets loading strategy for all ships in collection
         /// </summary>
-        /// <param name="strategy">Strategy that will be used to load containers onto ship</param>
-        public void SetStrategy(IStrategy strategy)
+        /// <param name="strategy">Shipwise strategy that will be used to load containers onto ship</param>
+        public void SetStrategy(IShipwiseStrategy strategy)
         {
             foreach (Ship s in this)
                 s.dataGenStrategy = strategy;
+        }
+
+        /// <summary>
+        /// Sets loading strategy for this collection
+        /// </summary>
+        /// <param name="strategy">Collectionwise strategy that will be used to load containers onto ship</param>
+        public void SetStrategy(ICollectionwiseStrategy strategy)
+        {
+            dataGenStrategy = strategy;
         }
 
         /// <summary>
@@ -190,7 +217,7 @@ namespace IOships
         /// <returns>
         /// Task resulting in dictionary of containers for each ship
         /// </returns>
-        public async Task<Dictionary<int, ContainersCollection>> LoadContainers()
+        private async Task<Dictionary<int, ContainersCollection>> LoadContainersShipwise()
         {
             Dictionary<int, ContainersCollection> answers = new Dictionary<int, ContainersCollection>();
             List<Task<ContainersCollection>> results = new List<Task<ContainersCollection>>();
@@ -212,6 +239,41 @@ namespace IOships
             }
 
             return answers;
+        }
+
+        private Dictionary<int, ContainersCollection> LoadContainersCollectionwise()
+        {
+            if (dataGenStrategy is null)
+                throw new NullReferenceException("Loading strategy not chosen");
+
+            logger.Debug("Starting data generation");
+            Dictionary<int, ContainersCollection> res = dataGenStrategy.GenerateData(this);
+
+            logger.Trace("Updating ships data");
+
+            foreach (int i in res.Keys)
+            {
+                Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
+                    this[i].containersHistory = res[i];
+                    this[i].shipHistory[0].Values.Add(res[i].Count);
+                    }));
+            }
+            
+            logger.Trace("Updated ships data");
+
+            return res;
+        }
+
+        public async Task<Dictionary<int, ContainersCollection>> LoadContainers(LoadingMode mode)
+        {
+            Dictionary<int, ContainersCollection> res = new Dictionary<int, ContainersCollection>();
+
+            if (mode == LoadingMode.Elementwise)
+                res = await LoadContainersShipwise();
+            else if (mode == LoadingMode.Collectionwise)
+                res = LoadContainersCollectionwise();
+
+            return res;
         }
     }
 }

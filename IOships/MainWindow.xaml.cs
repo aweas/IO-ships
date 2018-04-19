@@ -55,13 +55,17 @@ namespace IOships
             for(int i=0; i<5; i++)
                 cargoShips.Add(90, 90, 160);
 
-            cargoShips.SetStrategy(new RandomStrategy());
+            cargoShips.SetStrategy(new RandomShipStrategy());
+            cargoShips.dataGenStrategy = new RandomCollectionStrategy();
 
             DataContext = this;
         }
 
         private void btn_ship_Click(object sender, RoutedEventArgs e)
         {
+            if (ss != null)
+                ss.Close();
+
             (sender as Button).IsEnabled = false;
 
             new Task(() => GenerateLoadingInstructions()).Start();
@@ -73,12 +77,12 @@ namespace IOships
         }
 
         /// <summary>
-        /// Function that generates instruction for each ship and TODO: displays it in summary screen
+        /// Function that generates instruction for each ship and displays it in summary screen
         /// </summary>
         private async void GenerateLoadingInstructions()
         {
             logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, ContainersCollection>> res = cargoShips.LoadContainers();
+            Task<Dictionary<int, ContainersCollection>> res = cargoShips.LoadContainers(CargoShipCollection.LoadingMode.Collectionwise);
 
             Dictionary<int, ContainersCollection> results = await res;
 

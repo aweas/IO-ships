@@ -63,6 +63,8 @@ namespace IOships
             set { this.value = value; NotifyPropertyChanged("Value"); }
         }
 
+        public bool Enabled = false;
+
         public ObservableString(string val)
         {
             Value = val;
