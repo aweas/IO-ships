@@ -40,8 +40,6 @@ namespace IOships
         public SeriesCollection shipData { get; set; }
         public List<int> containersHistory;
 
-        public IShipwiseStrategy dataGenStrategy;
-
         public Ship(int ID, int width, int depth, Grid shipDataGrid)
         {
             this.ID = ID;
@@ -196,16 +194,6 @@ namespace IOships
         }
 
         /// <summary>
-        /// Sets loading strategy for all ships in collection
-        /// </summary>
-        /// <param name="strategy">Shipwise strategy that will be used to load containers onto ship</param>
-        public void SetStrategy(IShipwiseStrategy strategy)
-        {
-            foreach (Ship s in this)
-                s.dataGenStrategy = strategy;
-        }
-
-        /// <summary>
         /// Sets loading strategy for this collection
         /// </summary>
         /// <param name="strategy">Collectionwise strategy that will be used to load containers onto ship</param>
@@ -245,34 +233,46 @@ namespace IOships
         //    return answers;
         //}
 
-        private Dictionary<int, Dictionary<Coords, int>> LoadContainersCollectionwise(ContainersCollection containers)
+        //private Dictionary<int, InstructionsHelper> LoadContainersCollectionwise(ContainersCollection containers)
+        //{
+        //    if (dataGenStrategy is null)
+        //        throw new NullReferenceException("Loading strategy not chosen");
+
+        //    logger.Debug("Loading containers collectionwise");
+        //    Dictionary<int, InstructionsHelper> res = dataGenStrategy.GenerateData(this, containers);
+
+        //    logger.Trace("Updating ships data");
+
+        //    foreach (int i in res.Keys)
+        //    {
+        //        Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
+        //            this[i].containersHistory = res[i].Instructions.Values.ToList<int>();
+        //            this[i].shipHistory[0].Values.Add(res[i].Instructions.Count);
+        //            }));
+        //    }
+            
+        //    logger.Trace("Updated ships data");
+
+        //    return res;
+        //}
+
+        public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(LoadingMode mode, ContainersCollection containers)
         {
             if (dataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
             logger.Debug("Loading containers collectionwise");
-            Dictionary<int, Dictionary<Coords, int>> res = dataGenStrategy.GenerateData(this, containers);
-
-            logger.Trace("Updating ships data");
+            Dictionary<int, InstructionsHelper> res = dataGenStrategy.GenerateData(this, containers);
 
             foreach (int i in res.Keys)
             {
-                Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
-                    this[i].containersHistory = res[i].Values.ToList<int>();
-                    this[i].shipHistory[0].Values.Add(res[i].Count);
-                    }));
+                await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
+                    this[i].containersHistory = res[i].Instructions.Values.ToList<int>();
+                    this[i].shipHistory[0].Values.Add(res[i].Instructions.Count);
+                }));
             }
-            
+
             logger.Trace("Updated ships data");
-
-            return res;
-        }
-
-        public async Task<Dictionary<int, Dictionary<Coords, int>>> LoadContainers(LoadingMode mode, ContainersCollection containers)
-        {
-            Dictionary<int, Dictionary<Coords, int>> res = new Dictionary<int, Dictionary<Coords, int>>();
-
-            res = LoadContainersCollectionwise(containers);
 
             return res;
         }

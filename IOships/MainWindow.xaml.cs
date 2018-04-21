@@ -57,7 +57,6 @@ namespace IOships
             for(int i=0; i<5; i++)
                 cargoShips.Add(90, 160);
 
-            cargoShips.SetStrategy(new RandomShipStrategy());
             cargoShips.dataGenStrategy = new RandomCollectionStrategy();
 
             DataContext = this;
@@ -130,16 +129,18 @@ namespace IOships
         private async void GenerateLoadingInstructions(int mode)
         {
             logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, Dictionary<Coords, int>>> res = cargoShips.LoadContainers((LoadingMode)mode, containers);
+            Task<Dictionary<int, InstructionsHelper>> res = cargoShips.LoadContainers((LoadingMode)mode, containers);
 
-            Dictionary<int, Dictionary<Coords, int>> results = await res;
+            Dictionary<int, InstructionsHelper> results = await res;
 
             foreach (int ID in results.Keys)
             {
                 ss.AddToMessage($"\n\n-----------------{ID}-----------------");
+                ss.AddToMessage($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
+                ss.AddToMessage($"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{cargoShips[ID].width*cargoShips[ID].depth}\n");
 
-                foreach(Coords coords in results[ID].Keys)
-                    ss.AddToMessage($"\n{coords.x}, {coords.y}:\t{results[ID][coords]}");
+                foreach (Coords coords in results[ID].Instructions.Keys)
+                    ss.AddToMessage($"\n{coords.x}, {coords.y}:\t{results[ID].Instructions[coords]}");
             }
 
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>

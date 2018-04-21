@@ -8,13 +8,39 @@ namespace IOships
 {
     public struct Coords { public int x; public int y; }
 
-    class InstructionsHelper
+    public class InstructionsHelper
     {
-        bool[,] occupied;
-        int maxWidth;
-        int maxDepth;
+        private bool[,] occupied;
+        private int maxWidth;
+        private int maxDepth;
+        int occupiedTilesCount;
 
-        public Dictionary<Coords, int> instructions;
+        public Dictionary<Coords, int> Instructions;
+
+        public int GetPercentageFilled()
+        {
+            float sum = GetOccupiedTilesCount();
+
+            int percentageFilled = (int)(sum / (maxWidth * maxDepth) * 100);
+
+            return percentageFilled;
+        }
+
+        public int GetOccupiedTilesCount()
+        {
+            if(occupiedTilesCount==0)
+            {
+                int sum = 0;
+                for (int i = 0; i < maxWidth; i++)
+                    for (int j = 0; j < maxDepth; j++)
+                        if (occupied[i, j])
+                            sum++;
+
+                occupiedTilesCount = sum;
+            }
+
+            return occupiedTilesCount;
+        }
 
         public InstructionsHelper(Ship s)
         {
@@ -27,7 +53,7 @@ namespace IOships
             maxWidth = s.width;
             maxDepth = s.depth;
 
-            instructions = new Dictionary<Coords, int>();
+            Instructions = new Dictionary<Coords, int>();
         }
 
         public bool CanOccupy(Container c, int x, int y)
@@ -51,7 +77,7 @@ namespace IOships
                 for (int j = y; j < y + c.depth; j++)
                     occupied[i, j] = true;
 
-            instructions.Add(new Coords { x = x, y = y }, c.ID);
+            Instructions.Add(new Coords { x = x, y = y }, c.ID);
         }
     }
 
@@ -61,15 +87,15 @@ namespace IOships
     /// <summary>
     /// Interface which needs to be implemented by all shipwise strategies that ships can take to load cargo
     /// </summary>
-    public interface IShipwiseStrategy
-    {
-        /// <summary>
-        /// Function that generates containers list for selected ship
-        /// </summary>
-        /// <param name="ship">Ship that wants to generate data</param>
-        /// <returns>List of containers that this ship will take</returns>
-        ContainersCollection GenerateData(Ship ship, ContainersCollection containers);
-    }
+    //public interface IShipwiseStrategy
+    //{
+    //    /// <summary>
+    //    /// Function that generates containers list for selected ship
+    //    /// </summary>
+    //    /// <param name="ship">Ship that wants to generate data</param>
+    //    /// <returns>List of containers that this ship will take</returns>
+    //    ContainersCollection GenerateData(Ship ship, ContainersCollection containers);
+    //}
 
     /// <summary>
     /// Interface which needs to be implemented by all collectionwise strategies that ships can take to load cargo
@@ -81,40 +107,40 @@ namespace IOships
         /// </summary>
         /// <param name="ships">Collection that wants to generate data</param>
         /// <returns>Dictionary of ship ID's and list of their containers</returns>
-        Dictionary<int, Dictionary<Coords, int>> GenerateData(CargoShipCollection ships, ContainersCollection containers);
+        Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers);
     }
 
 
     /// <summary>
     /// Placeholder strategy that will generate random number of containers and wait for up to 10 seconds
     /// </summary>
-    public class RandomShipStrategy: IShipwiseStrategy
-    {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    //public class RandomShipStrategy: IShipwiseStrategy
+    //{
+    //    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private Container RandomContainer(Random r)
-        {            
-            return new Container(r.Next(), r.Next(), r.Next(), r.Next());
-        }
+    //    private Container RandomContainer(Random r)
+    //    {            
+    //        return new Container(r.Next(), r.Next(), r.Next(), r.Next());
+    //    }
 
-        public ContainersCollection GenerateData(Ship ship, ContainersCollection containers)
-        {
-            logger.Trace("Starting data generation for container {0}", ship.ID);
+    //    public ContainersCollection GenerateData(Ship ship, ContainersCollection containers)
+    //    {
+    //        logger.Trace("Starting data generation for container {0}", ship.ID);
 
-            ContainersCollection data = new ContainersCollection();
-            Random r = new Random();
-            int cap = r.Next(1, 100);
+    //        ContainersCollection data = new ContainersCollection();
+    //        Random r = new Random();
+    //        int cap = r.Next(1, 100);
 
-            for (int i = 0; i < cap; i++)
-                data.Add(RandomContainer(r));
+    //        for (int i = 0; i < cap; i++)
+    //            data.Add(RandomContainer(r));
 
-            logger.Trace("Finished data generation for container {0}", ship.ID);
+    //        logger.Trace("Finished data generation for container {0}", ship.ID);
 
-            int delay = r.Next(1, 100) * 10;
-            System.Threading.Thread.Sleep(delay);
-            return data;
-        }
-    }
+    //        int delay = r.Next(1, 100) * 10;
+    //        System.Threading.Thread.Sleep(delay);
+    //        return data;
+    //    }
+    //}
 
     /// <summary>
     /// Placeholder strategy for collectionwise data generation
@@ -130,13 +156,13 @@ namespace IOships
             return new Container(r.Next(5), r.Next(5), r.Next(), r.Next());
         }
 
-        public Dictionary<int, Dictionary<Coords, int>> GenerateData(CargoShipCollection ships, ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
         {
             logger.Trace("Starting data generation");
 
             Random r = new Random();
 
-            Dictionary<int, Dictionary<Coords, int>> res = new Dictionary<int, Dictionary<Coords, int>>();
+            Dictionary<int, InstructionsHelper> res = new Dictionary<int, InstructionsHelper>();
             foreach (Ship s in ships)
             {
                 InstructionsHelper helper = new InstructionsHelper(s);
@@ -154,7 +180,7 @@ namespace IOships
                     }
                 }
 
-                res.Add(s.ID, helper.instructions);
+                res.Add(s.ID, helper);
             }
             logger.Trace("Finished data generation");
             return res;
