@@ -12,7 +12,6 @@ namespace IOships
     public struct Container
     {
         public int width;
-        public int height;
         public int depth;
 
         public int id;
@@ -23,14 +22,12 @@ namespace IOships
         /// Creates container structure with given parameters
         /// </summary>
         /// <param name="width">Width of the container</param>
-        /// <param name="height">Height of the container</param>
         /// <param name="depth">Depth of the container</param>
         /// <param name="id">Container ID</param>
         /// <param name="turnCreated">Turn in which the container arrived</param>
-        public Container(int width, int height, int depth, int id, int turnCreated)
+        public Container(int width, int depth, int id, int turnCreated)
         {
             this.width = width;
-            this.height = height;
             this.depth = depth;
             this.id = id;
             this.turnCreated = turnCreated;
@@ -43,9 +40,9 @@ namespace IOships
     /// </summary>
     public class ContainersCollection : List<Container>
     {
-        public void Add(int width, int height, int depth, int id)
+        public void Add(int width, int depth, int id, int turn)
         {
-            Add(new Container (width, height, depth, id, 2));
+            Add(new Container (width, depth, id, turn));
         }
 
         public void Add(ContainersCollection conts)
@@ -65,10 +62,12 @@ namespace IOships
 
             foreach (Container a in this)
             {
-                if (!ages.ContainsKey(a.turnCreated))
-                    ages.Add(currentTurn - a.turnCreated, 1);
+                int key = currentTurn - a.turnCreated;
+
+                if (!ages.ContainsKey(key))
+                    ages.Add(key, 1);
                 else
-                    ages[currentTurn - a.turnCreated]++;
+                    ages[key]++;
             }
 
             return ages;
@@ -81,6 +80,17 @@ namespace IOships
                 res += i.id.ToString()+"; ";
 
             return res;
+        }
+
+        /// <summary>
+        /// Adds randomly created containers. Placeholder method, it should be read from csv
+        /// </summary>
+        /// <param name="num">Number of containers to add</param>
+        public void AddRandom(int num, int turn)
+        {
+            Random random = new Random();
+            for (int i = 0; i < num; i++)
+                Add(random.Next(1, 10), random.Next(1, 10), random.Next(), turn);
         }
     }
 }

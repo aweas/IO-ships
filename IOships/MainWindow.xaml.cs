@@ -26,16 +26,16 @@ namespace IOships
 
         CargoShipCollection cargoShips;
         public SeriesCollection SeriesCollection { get; set; }
+        public ContainersCollection containers;
+        public int turn;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-        public int turn;
 
         public MainWindow()
         {
             InitializeComponent();
             cargoShips = new CargoShipCollection(shipDataGrid);
-
+            containers = new ContainersCollection();
             SeriesCollection = new SeriesCollection
             {
                 new PieSeries
@@ -52,6 +52,8 @@ namespace IOships
                 }
             };
 
+            containers.AddRandom(100, turn);
+
             for(int i=0; i<5; i++)
                 cargoShips.Add(90, 90, 160);
 
@@ -61,8 +63,34 @@ namespace IOships
             DataContext = this;
         }
 
+        private void UpdatePie()
+        {
+            SeriesCollection.Clear();
+            Dictionary<int, int> data = containers.getAgeAndCount(turn);
+
+            foreach (int key in data.Keys)
+            {
+                string title;
+
+                if (key == 0)
+                    title = "Newly arrived";
+                else if (key == 1)
+                    title = "Waiting for 1 round";
+                else
+                    title = $"Waiting for {key} rounds";
+
+                SeriesCollection.Add(new PieSeries
+                {
+                    Title = title,
+                    Values = new ChartValues<ObservableValue> { new ObservableValue(data[key]) },
+                    DataLabels = true
+                });
+            }
+        }
+
         private void btn_ship_Click(object sender, RoutedEventArgs e)
         {
+            //Make sure that only one summary window exists
             if (ss != null)
                 ss.Close();
             int mode = cb_mode.SelectedIndex;
@@ -75,6 +103,10 @@ namespace IOships
 
             ss = new SummaryScreen();
             ss.Show();
+
+            turn++;
+            containers.AddRandom(100, turn);
+            UpdatePie();        
         }
 
         /// <summary>

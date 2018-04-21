@@ -42,17 +42,13 @@ namespace IOships
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private Container RandomContainer(int seed)
-        {
-            Random r = new Random(seed);
-            
-            return new Container(r.Next(), r.Next(), r.Next(), r.Next(), r.Next());
+        private Container RandomContainer(Random r)
+        {            
+            return new Container(r.Next(), r.Next(), r.Next(), r.Next());
         }
 
         public ContainersCollection GenerateData(Ship ship)
         {
-            int seed = ship.ID;
-
             logger.Trace("Starting data generation for container {0}", ship.ID);
 
             ContainersCollection data = new ContainersCollection();
@@ -60,7 +56,7 @@ namespace IOships
             int cap = r.Next(1, 100);
 
             for (int i = 0; i < cap; i++)
-                data.Add(RandomContainer(seed));
+                data.Add(RandomContainer(r));
 
             logger.Trace("Finished data generation for container {0}", ship.ID);
 
@@ -81,7 +77,7 @@ namespace IOships
         {
             Random r = new Random();
 
-            return new Container(r.Next(), r.Next(), r.Next(), r.Next(), r.Next());
+            return new Container(r.Next(), r.Next(), r.Next(), r.Next());
         }
 
         public Dictionary<int, ContainersCollection> GenerateData(CargoShipCollection ships)

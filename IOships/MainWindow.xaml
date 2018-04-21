@@ -53,7 +53,7 @@
             <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="SHIP&#xA;GOODS" Margin="336,10,336.8,10" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="76" Height="50" VerticalAlignment="Bottom" MinWidth="76" MinHeight="50" Click="btn_ship_Click"/>
         </Grid>
         <Label x:Name="label_Copy1" Content="CARGO&#xD;&#xA;MANAGER" VerticalAlignment="Top" Foreground="White" FontFamily="Berlin Sans FB" FontSize="48" HorizontalAlignment="Left" Height="162" Width="374" Grid.RowSpan="2"/>
-        <lvc:PieChart x:Name="chart_containers" Series="{Binding SeriesCollection}" 
+        <lvc:PieChart x:Name="chart_containers" Series="{Binding SeriesCollection}"
             LegendLocation="Bottom" InnerRadius="90" Margin="0" Grid.Row="1">
             <lvc:PieChart.ChartLegend>
                 <lvc:DefaultLegend BulletSize="20" Foreground="White"/>
