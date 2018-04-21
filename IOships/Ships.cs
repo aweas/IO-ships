@@ -30,19 +30,24 @@ namespace IOships
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public int ID;
+        public int width;
+        public int depth;
 
         private CartesianChart ship;
         private Label average;
         public String avg { get; set; }
         public SeriesCollection shipHistory { get; set; }
         public SeriesCollection shipData { get; set; }
-        public ContainersCollection containersHistory;
+        public List<int> containersHistory;
 
         public IShipwiseStrategy dataGenStrategy;
 
-        public Ship(int ID, Grid shipDataGrid)
+        public Ship(int ID, int width, int depth, Grid shipDataGrid)
         {
             this.ID = ID;
+            this.width = width;
+            this.depth = depth;
+
             setupLabel(ID, shipDataGrid);
             setupPlot(ID, shipDataGrid);
         }
@@ -123,27 +128,27 @@ namespace IOships
         {
             this.shipData[0].Values.Add(containersHistory.Count);
 
-            if (shipData[0].Values.Count == 5)
+            if (shipData[0].Values.Count == 8)
                 shipData[0].Values.RemoveAt(0);
         }
 
         /// <summary>
         /// Generates containers to be taken this turn according to given strategy
         /// </summary>
-        public ContainersCollection GenerateContainers()
-        {
-            logger.Trace($"Starting strategy for ship {ID}");
+        //public ContainersCollection GenerateContainers(ContainersCollection containers)
+        //{
+        //    logger.Trace($"Starting strategy for ship {ID}");
 
-            if (dataGenStrategy is null)
-                throw new NullReferenceException("Loading strategy not chosen");
+        //    if (dataGenStrategy is null)
+        //        throw new NullReferenceException("Loading strategy not chosen");
 
-            containersHistory = dataGenStrategy.GenerateData(this);
-            logger.Trace($"Finished strategy for ID {ID}");
+        //    containersHistory = dataGenStrategy.GenerateData(this, containers);
+        //    logger.Trace($"Finished strategy for ID {ID}");
 
-            shipHistory[0].Values.Add(containersHistory.Count);
+        //    shipHistory[0].Values.Add(containersHistory.Count);
 
-            return containersHistory;
-        }
+        //    return containersHistory;
+        //}
 
         protected void OnPropertyChanged(string propertyName)
         {
@@ -181,12 +186,12 @@ namespace IOships
         /// <param name="width">Width of ship's hold</param>
         /// <param name="height">Height of ship's hold</param>
         /// <param name="depth">Depth of ship's hold</param>
-        public void Add(int width, int height, int depth)
+        public void Add(int width, int depth)
         {
             if (iterator == 5)
                 throw new IndexOutOfRangeException("Trying to add too many ships!");
 
-            this.Add(new Ship(iterator, boundGrid));
+            this.Add(new Ship(iterator, width, depth, boundGrid));
             iterator++;
         }
 
@@ -215,44 +220,45 @@ namespace IOships
         /// <returns>
         /// Task resulting in dictionary of containers for each ship
         /// </returns>
-        private async Task<Dictionary<int, ContainersCollection>> LoadContainersShipwise()
-        {
-            Dictionary<int, ContainersCollection> answers = new Dictionary<int, ContainersCollection>();
-            List<Task<ContainersCollection>> results = new List<Task<ContainersCollection>>();
+        //private async Task<Dictionary<int, ContainersCollection>> LoadContainersShipwise(ContainersCollection containers)
+        //{
+        //    Dictionary<int, ContainersCollection> answers = new Dictionary<int, ContainersCollection>();
+        //    List<Task<ContainersCollection>> results = new List<Task<ContainersCollection>>();
+        //    logger.Debug("Loading containers shipwise");
 
-            logger.Debug("Starting data generation threads");
-            foreach (Ship s in this)
-            {
-                Task<ContainersCollection> generateData = Task.Run(() => s.GenerateContainers());
-                results.Add(generateData);
-            }
+        //    logger.Debug("Starting data generation threads");
+        //    foreach (Ship s in this)
+        //    {
+        //        Task<ContainersCollection> generateData = Task.Run(() => s.GenerateContainers(containers));
+        //        results.Add(generateData);
+        //    }
 
-            logger.Debug("Gathering data from threads");
-            for (int i=0; i<this.Count; i++)
-            {
-                logger.Trace("Waiting for thread {0}", i);
-                ContainersCollection res = await results[i];
-                logger.Trace("Got result from thread {0}", i);
-                answers.Add(this[i].ID, res);
-            }
+        //    logger.Debug("Gathering data from threads");
+        //    for (int i=0; i<this.Count; i++)
+        //    {
+        //        logger.Trace("Waiting for thread {0}", i);
+        //        ContainersCollection res = await results[i];
+        //        logger.Trace("Got result from thread {0}", i);
+        //        answers.Add(this[i].ID, res);
+        //    }
 
-            return answers;
-        }
+        //    return answers;
+        //}
 
-        private Dictionary<int, ContainersCollection> LoadContainersCollectionwise()
+        private Dictionary<int, Dictionary<Coords, int>> LoadContainersCollectionwise(ContainersCollection containers)
         {
             if (dataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
-            logger.Debug("Starting data generation");
-            Dictionary<int, ContainersCollection> res = dataGenStrategy.GenerateData(this);
+            logger.Debug("Loading containers collectionwise");
+            Dictionary<int, Dictionary<Coords, int>> res = dataGenStrategy.GenerateData(this, containers);
 
             logger.Trace("Updating ships data");
 
             foreach (int i in res.Keys)
             {
                 Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
-                    this[i].containersHistory = res[i];
+                    this[i].containersHistory = res[i].Values.ToList<int>();
                     this[i].shipHistory[0].Values.Add(res[i].Count);
                     }));
             }
@@ -262,14 +268,11 @@ namespace IOships
             return res;
         }
 
-        public async Task<Dictionary<int, ContainersCollection>> LoadContainers(LoadingMode mode)
+        public async Task<Dictionary<int, Dictionary<Coords, int>>> LoadContainers(LoadingMode mode, ContainersCollection containers)
         {
-            Dictionary<int, ContainersCollection> res = new Dictionary<int, ContainersCollection>();
+            Dictionary<int, Dictionary<Coords, int>> res = new Dictionary<int, Dictionary<Coords, int>>();
 
-            if (mode == LoadingMode.Elementwise)
-                res = await LoadContainersShipwise();
-            else if (mode == LoadingMode.Collectionwise)
-                res = LoadContainersCollectionwise();
+            res = LoadContainersCollectionwise(containers);
 
             return res;
         }

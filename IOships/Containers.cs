@@ -14,7 +14,7 @@ namespace IOships
         public int width;
         public int depth;
 
-        public int id;
+        public int ID;
         public int turnCreated;
         public int? turnDeleted;
 
@@ -29,7 +29,7 @@ namespace IOships
         {
             this.width = width;
             this.depth = depth;
-            this.id = id;
+            this.ID = id;
             this.turnCreated = turnCreated;
             this.turnDeleted = null;
         }
@@ -77,11 +77,12 @@ namespace IOships
         {
             string res = "";
             foreach (Container i in this)
-                res += i.id.ToString()+"; ";
+                res += i.ID.ToString()+"; ";
 
             return res;
         }
 
+        //TODO: Add function that reads input from CSV
         /// <summary>
         /// Adds randomly created containers. Placeholder method, it should be read from csv
         /// </summary>
@@ -91,6 +92,17 @@ namespace IOships
             Random random = new Random();
             for (int i = 0; i < num; i++)
                 Add(random.Next(1, 10), random.Next(1, 10), random.Next(), turn);
+        }
+
+        /// <summary>
+        /// Remove container with given ID
+        /// </summary>
+        /// <param name="ID">ID of container to remove</param>
+        public void Remove(int ID)
+        {
+            foreach(Container c in this)
+                if (c.ID == ID)
+                    this.Remove(c);
         }
     }
 }

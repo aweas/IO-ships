@@ -55,7 +55,7 @@ namespace IOships
             containers.AddRandom(100, turn);
 
             for(int i=0; i<5; i++)
-                cargoShips.Add(90, 90, 160);
+                cargoShips.Add(90, 160);
 
             cargoShips.SetStrategy(new RandomShipStrategy());
             cargoShips.dataGenStrategy = new RandomCollectionStrategy();
@@ -71,21 +71,37 @@ namespace IOships
             foreach (int key in data.Keys)
             {
                 string title;
+                if (key < 3)
+                {
+                    if (key == 0)
+                        title = "Newly arrived";
+                    else if (key == 1)
+                        title = "Waiting for 1 round";
+                    else
+                        title = $"Waiting for {key} rounds";
 
-                if (key == 0)
-                    title = "Newly arrived";
-                else if (key == 1)
-                    title = "Waiting for 1 round";
-                else
-                    title = $"Waiting for {key} rounds";
+                    SeriesCollection.Add(new PieSeries
+                    {
+                        Title = title,
+                        Values = new ChartValues<ObservableValue> { new ObservableValue(data[key]) },
+                        DataLabels = true
+                    });
+                }
+            }
 
+            int sum = 0;
+            foreach (int key in data.Keys)
+                if (key >= 3)
+                    sum += data[key];
+
+            if(sum>0)
                 SeriesCollection.Add(new PieSeries
                 {
-                    Title = title,
-                    Values = new ChartValues<ObservableValue> { new ObservableValue(data[key]) },
+                    Title = "Waiting for 3+ rounds",
+                    Values = new ChartValues<ObservableValue> { new ObservableValue(sum) },
                     DataLabels = true
                 });
-            }
+
         }
 
         private void btn_ship_Click(object sender, RoutedEventArgs e)
@@ -106,7 +122,6 @@ namespace IOships
 
             turn++;
             containers.AddRandom(100, turn);
-            UpdatePie();        
         }
 
         /// <summary>
@@ -115,17 +130,23 @@ namespace IOships
         private async void GenerateLoadingInstructions(int mode)
         {
             logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, ContainersCollection>> res = cargoShips.LoadContainers((LoadingMode)mode);
+            Task<Dictionary<int, Dictionary<Coords, int>>> res = cargoShips.LoadContainers((LoadingMode)mode, containers);
 
-            Dictionary<int, ContainersCollection> results = await res;
+            Dictionary<int, Dictionary<Coords, int>> results = await res;
 
             foreach (int ID in results.Keys)
-                ss.AddToMessage("\n" + ID + ": " + results[ID].ToString());
+            {
+                ss.AddToMessage($"\n\n-----------------{ID}-----------------");
+
+                foreach(Coords coords in results[ID].Keys)
+                    ss.AddToMessage($"\n{coords.x}, {coords.y}:\t{results[ID][coords]}");
+            }
 
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
                 lbl_status.Content = "Cargo ready to be shipped";
                 btn_ship.IsEnabled = true;
+                UpdatePie();
             }));
             logger.Info("Loading instructions generation finished");
         }
