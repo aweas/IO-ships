@@ -130,24 +130,6 @@ namespace IOships
                 shipData[0].Values.RemoveAt(0);
         }
 
-        /// <summary>
-        /// Generates containers to be taken this turn according to given strategy
-        /// </summary>
-        //public ContainersCollection GenerateContainers(ContainersCollection containers)
-        //{
-        //    logger.Trace($"Starting strategy for ship {ID}");
-
-        //    if (dataGenStrategy is null)
-        //        throw new NullReferenceException("Loading strategy not chosen");
-
-        //    containersHistory = dataGenStrategy.GenerateData(this, containers);
-        //    logger.Trace($"Finished strategy for ID {ID}");
-
-        //    shipHistory[0].Values.Add(containersHistory.Count);
-
-        //    return containersHistory;
-        //}
-
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
@@ -167,7 +149,7 @@ namespace IOships
 
         private Grid boundGrid;
         private int iterator = 0;
-        public ICollectionwiseStrategy dataGenStrategy;
+        public IStrategy dataGenStrategy;
 
         /// <summary>
         /// Binds collection to grid
@@ -197,64 +179,10 @@ namespace IOships
         /// Sets loading strategy for this collection
         /// </summary>
         /// <param name="strategy">Collectionwise strategy that will be used to load containers onto ship</param>
-        public void SetStrategy(ICollectionwiseStrategy strategy)
+        public void SetStrategy(IStrategy strategy)
         {
             dataGenStrategy = strategy;
         }
-
-        /// <summary>
-        /// Asynchronously generates containers to be loaded this turn for all ships according to provided strategy
-        /// </summary>
-        /// <returns>
-        /// Task resulting in dictionary of containers for each ship
-        /// </returns>
-        //private async Task<Dictionary<int, ContainersCollection>> LoadContainersShipwise(ContainersCollection containers)
-        //{
-        //    Dictionary<int, ContainersCollection> answers = new Dictionary<int, ContainersCollection>();
-        //    List<Task<ContainersCollection>> results = new List<Task<ContainersCollection>>();
-        //    logger.Debug("Loading containers shipwise");
-
-        //    logger.Debug("Starting data generation threads");
-        //    foreach (Ship s in this)
-        //    {
-        //        Task<ContainersCollection> generateData = Task.Run(() => s.GenerateContainers(containers));
-        //        results.Add(generateData);
-        //    }
-
-        //    logger.Debug("Gathering data from threads");
-        //    for (int i=0; i<this.Count; i++)
-        //    {
-        //        logger.Trace("Waiting for thread {0}", i);
-        //        ContainersCollection res = await results[i];
-        //        logger.Trace("Got result from thread {0}", i);
-        //        answers.Add(this[i].ID, res);
-        //    }
-
-        //    return answers;
-        //}
-
-        //private Dictionary<int, InstructionsHelper> LoadContainersCollectionwise(ContainersCollection containers)
-        //{
-        //    if (dataGenStrategy is null)
-        //        throw new NullReferenceException("Loading strategy not chosen");
-
-        //    logger.Debug("Loading containers collectionwise");
-        //    Dictionary<int, InstructionsHelper> res = dataGenStrategy.GenerateData(this, containers);
-
-        //    logger.Trace("Updating ships data");
-
-        //    foreach (int i in res.Keys)
-        //    {
-        //        Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
-        //            this[i].containersHistory = res[i].Instructions.Values.ToList<int>();
-        //            this[i].shipHistory[0].Values.Add(res[i].Instructions.Count);
-        //            }));
-        //    }
-            
-        //    logger.Trace("Updated ships data");
-
-        //    return res;
-        //}
 
         public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(LoadingMode mode, ContainersCollection containers)
         {
