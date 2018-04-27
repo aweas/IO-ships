@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Enables minimum mode for testing algorithms
+#define MINIMUM_MODE
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +25,7 @@ namespace IOships
 {
     public partial class MainWindow : Window
     {
+
         SummaryScreen ss;
 
         CargoShipCollection cargoShips;
@@ -33,6 +37,7 @@ namespace IOships
 
         public MainWindow()
         {
+#if !MINIMUM_MODE
             InitializeComponent();
             cargoShips = new CargoShipCollection(shipDataGrid);
             containers = new ContainersCollection();
@@ -60,8 +65,36 @@ namespace IOships
             cargoShips.dataGenStrategy = new RandomCollectionStrategy();
 
             DataContext = this;
+#else
+            // Hide GUI
+            this.Hide();
+
+            // Initialize everything
+            containers = new ContainersCollection();                        
+            SeriesCollection = new SeriesCollection();
+            cargoShips = new CargoShipCollection(null);
+            for (int i = 0; i < 5; i++)
+                cargoShips.Add(90, 160);
+
+            // Implement RandomcCollectionStrategy
+            cargoShips.dataGenStrategy = new RandomCollectionStrategy();    
+
+            containers.AddRandom(100, turn);
+            ss = new SummaryScreen();
+            ss.Show();
+
+            // Make sure program closes after SS is closed
+            ss.SyncronizationClosedEvent += new EventHandler(delegate (object o, EventArgs e) { this.Close(); }) ;                      
+            GenerateLoadingInstructions((int)LoadingMode.Random);           // Right now the argument does not change anything
+#endif
         }
 
+#if MINIMUM_MODE
+        public void closeThis(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+#endif
         private void UpdatePie()
         {
             SeriesCollection.Clear();
@@ -118,7 +151,7 @@ namespace IOships
 
             ss = new SummaryScreen();
             ss.Show();
-
+            
             turn++;
             containers.AddRandom(100, turn);
         }
@@ -142,7 +175,6 @@ namespace IOships
                 foreach (Coords coords in results[ID].Instructions.Keys)
                     ss.AddToMessage($"\n{coords.x}, {coords.y}:\t{results[ID].Instructions[coords]}");
             }
-
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
                 lbl_status.Content = "Cargo ready to be shipped";

@@ -45,9 +45,14 @@ namespace IOships
             this.ID = ID;
             this.width = width;
             this.depth = depth;
+            shipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
+            shipHistory = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
 
-            setupLabel(ID, shipDataGrid);
-            setupPlot(ID, shipDataGrid);
+            if ( !(shipDataGrid is null) )
+            {
+                setupLabel(ID, shipDataGrid);
+                setupPlot(ID, shipDataGrid);
+            }
         }
 
         #region initializing ship
@@ -56,8 +61,7 @@ namespace IOships
             Random r = new Random();
 
             logger.Info("Initializing ship's plot");
-            shipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
-            shipHistory = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
+
             shipHistory[0].Values.CollectionChanged += UpdateDisplay;
             shipHistory[0].Values.CollectionChanged += RecalculateAverage;
 
@@ -157,7 +161,8 @@ namespace IOships
         /// <param name="boundGrid">Grid in which ships' statistics will be displayed</param>
         public CargoShipCollection(Grid boundGrid)
         {
-            this.boundGrid = boundGrid;
+            if ( !(boundGrid is null) )
+                this.boundGrid = boundGrid;
         }
 
         /// <summary>

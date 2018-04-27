@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:IOships"
         mc:Ignorable="d"
         Title="Summary" Height="459.086" Width="357.482" WindowStartupLocation="CenterOwner"
-        AllowsTransparency="True" WindowStyle="None"  MouseDown="Window_MouseDown">
+        AllowsTransparency="True" WindowStyle="None"  MouseDown="Window_MouseDown" Closing="Window_Close">
     <Grid Background="#2f2c38">
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>

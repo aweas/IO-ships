@@ -50,6 +50,18 @@ namespace IOships
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
         }
+
+        public event EventHandler SyncronizationClosedEvent;
+
+        protected void SyncronizationClosed(object sender, EventArgs args)
+        {
+            SyncronizationClosedEvent?.Invoke(sender, args);
+        }
+
+        private void Window_Close(object sender, CancelEventArgs e)
+        {
+            SyncronizationClosed(this, e);
+        }
     }
 
     public class ObservableString: INotifyPropertyChanged
