@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IOships"
         mc:Ignorable="d"
-        Title="Summary" Height="459.086" Width="357.482" WindowStartupLocation="CenterOwner"
+        Title="Summary" Height="669.698" Width="521.482" WindowStartupLocation="CenterOwner"
         AllowsTransparency="True" WindowStyle="None"  MouseDown="Window_MouseDown" Closing="Window_Close">
     <Grid Background="#2f2c38">
         <Grid.RowDefinitions>
-            <RowDefinition Height="20*"/>
-            <RowDefinition Height="4*"/>
+            <RowDefinition Height="60*"/>
+            <RowDefinition Height="7*"/>
         </Grid.RowDefinitions>
-        <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="Close" Margin="0" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" Width="62" Height="52" VerticalAlignment="Center" MinWidth="76" MinHeight="50" Grid.Row="1" HorizontalAlignment="Center" Click="btn_ship_Click"/>
-        <ScrollViewer Margin="10,10,9.5,0" VerticalScrollBarVisibility="Auto">
-            <TextBlock TextWrapping="Wrap" Text="{Binding Value}" Background="#645f72" Foreground="White" x:Name="tb_summary" Height="Auto" Width="338"/>
+        <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="Close" Margin="222,8,223,10" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" Width="76" Height="52" VerticalAlignment="Center" MinWidth="76" MinHeight="50" Grid.Row="1" HorizontalAlignment="Center" Click="btn_ship_Click"/>
+        <ScrollViewer Margin="10,10,9,0" VerticalScrollBarVisibility="Auto">
+            <TextBlock TextWrapping="Wrap" Text="{Binding Value}" Background="#645f72" Foreground="White" x:Name="tb_summary" Height="Auto"/>
         </ScrollViewer>
 
     </Grid>

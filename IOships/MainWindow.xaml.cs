@@ -1,6 +1,6 @@
 ﻿// Enables minimum mode for testing algorithms
 
-#define MINIMUM_MODE
+//#define MINIMUM_MODE
 
 using System;
 using System.Collections.Generic;
@@ -51,7 +51,7 @@ namespace IOships
             _containers.AddRandom(100, _turn);
 
             for(int i = 0; i<5; i++)
-                _cargoShips.Add(20, 32);
+                _cargoShips.Add(32, 20);
 
             _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
 
@@ -65,7 +65,7 @@ namespace IOships
             SeriesCollection = new SeriesCollection();
             _cargoShips = new CargoShipCollection(null);
             for (var i = 0; i < 5; i++)
-                _cargoShips.Add(20, 32);
+                _cargoShips.Add(32, 20);
 
             // Implement RandomcCollectionStrategy
             _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
