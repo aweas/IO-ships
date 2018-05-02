@@ -1,83 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IOships
 {
-    public struct Coords { public int x; public int y; }
+    public struct Coords { public int X; public int Y; }
 
     public class InstructionsHelper
     {
-        private bool[,] occupied;
-        private int maxWidth;
-        private int maxDepth;
-        int occupiedTilesCount;
+        private readonly bool[,] _occupied;
+        private readonly int _maxWidth;
+        private readonly int _maxDepth;
+        private int _occupiedTilesCount;
 
         public Dictionary<Coords, int> Instructions;
+
+        public InstructionsHelper(Ship s)
+        {
+            _occupied = new bool[s.Width, s.Depth];
+            for (var i = 0; i < s.Width; i++)
+                for (var j = 0; j < s.Depth; j++)
+                    _occupied[i, j] = false;
+
+
+            _maxWidth = s.Width;
+            _maxDepth = s.Depth;
+
+            Instructions = new Dictionary<Coords, int>();
+        }
 
         public int GetPercentageFilled()
         {
             float sum = GetOccupiedTilesCount();
 
-            int percentageFilled = (int)(sum / (maxWidth * maxDepth) * 100);
+            var percentageFilled = (int)(sum / (_maxWidth * _maxDepth) * 100);
 
             return percentageFilled;
         }
 
         public int GetOccupiedTilesCount()
         {
-            if(occupiedTilesCount==0)
-            {
-                int sum = 0;
-                for (int i = 0; i < maxWidth; i++)
-                    for (int j = 0; j < maxDepth; j++)
-                        if (occupied[i, j])
-                            sum++;
+            if (_occupiedTilesCount != 0)
+                return _occupiedTilesCount;
 
-                occupiedTilesCount = sum;
-            }
+            var sum = 0;
+            for (var i = 0; i < _maxWidth; i++)
+            for (var j = 0; j < _maxDepth; j++)
+                if (_occupied[i, j])
+                    sum++;
 
-            return occupiedTilesCount;
-        }
+            _occupiedTilesCount = sum;
 
-        public InstructionsHelper(Ship s)
-        {
-            occupied = new bool[s.width, s.depth];
-            for (int i = 0; i < s.width; i++)
-                for (int j = 0; j < s.depth; j++)
-                    occupied[i, j] = false;
-
-
-            maxWidth = s.width;
-            maxDepth = s.depth;
-
-            Instructions = new Dictionary<Coords, int>();
+            return _occupiedTilesCount;
         }
 
         public bool CanOccupy(Container c, int x, int y)
         {
-            if (x + c.width > maxWidth)
+            if (x + c.Width > _maxWidth)
                 return false;
-            if (y + c.depth > maxDepth)
+            if (y + c.Depth > _maxDepth)
                 return false;
 
-            for (int i = x; i < x + c.width; i++)
-                for (int j = y; j < y + c.depth; j++)
-                    if (occupied[i, j])
+            for (var i = x; i < x + c.Width; i++)
+                for (var j = y; j < y + c.Depth; j++)
+                    if (_occupied[i, j])
                         return false;
 
             return true;
         }
 
-        public void Occupy(Container c, int x, int y)
+        public void Occupy(Container container, int x, int y)
         {
-            for (int i = x; i < x + c.width; i++)
-                for (int j = y; j < y + c.depth; j++)
-                    occupied[i, j] = true;
+            for (var i = x; i < x + container.Width; i++)
+                for (var j = y; j < y + container.Depth; j++)
+                    _occupied[i, j] = true;
 
-            Instructions.Add(new Coords { x = x, y = y }, c.ID);
+            Instructions.Add(new Coords { X = x, Y = y }, container.ID);
         }
     }
 
@@ -91,7 +88,8 @@ namespace IOships
         /// <summary>
         /// Function that generates containers list for selected collection
         /// </summary>
-        /// <param name="ships">Collection that wants to generate data</param>
+        /// <param name="ships">Collection of ships that wants to generate data</param>
+        /// <param name="containers">Collection of containers that will be available</param>
         /// <returns>Dictionary of ship ID's and list of their containers</returns>
         Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers);
     }
@@ -101,31 +99,24 @@ namespace IOships
     /// </summary>
     public class RandomCollectionStrategy : IStrategy
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-        private Container RandomContainer()
-        {
-            Random r = new Random();
-
-            return new Container(r.Next(5), r.Next(5), r.Next(), r.Next());
-        }
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
         {
-            logger.Trace("Starting data generation");
+            Logger.Trace("Starting data generation");
 
             Random r = new Random();
 
             Dictionary<int, InstructionsHelper> res = new Dictionary<int, InstructionsHelper>();
             foreach (Ship s in ships)
             {
-                InstructionsHelper helper = new InstructionsHelper(s);
+                var helper = new InstructionsHelper(s);
 
                 for(int i=0; i<20; i++)
                 {
                     int id = r.Next(containers.Count - 1);
-                    int x = r.Next(s.width - 1);
-                    int y = r.Next(s.depth - 1);
+                    int x = r.Next(s.Width - 1);
+                    int y = r.Next(s.Depth - 1);
 
                     if (helper.CanOccupy(containers[id], x, y))
                     {
@@ -136,7 +127,7 @@ namespace IOships
 
                 res.Add(s.ID, helper);
             }
-            logger.Trace("Finished data generation");
+            Logger.Trace("Finished data generation");
             return res;
         }
     }

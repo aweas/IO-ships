@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Threading.Tasks;
 using LiveCharts;
 using LiveCharts.Wpf;
-using LiveCharts.Defaults;
 using System.ComponentModel;
 
 namespace IOships
@@ -27,80 +20,84 @@ namespace IOships
     public class Ship : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public int ID;
-        public int width;
-        public int depth;
+        public int Width;
+        public int Depth;
 
-        private CartesianChart ship;
-        private Label average;
-        public String avg { get; set; }
-        public SeriesCollection shipHistory { get; set; }
-        public SeriesCollection shipData { get; set; }
-        public List<int> containersHistory;
+        private CartesianChart _cartesianChart;
+        private Label _averageLabel;
+        public String Avg { get; set; }
+        public SeriesCollection ShipHistory { get; set; }
+        public SeriesCollection ShipData { get; set; }
+        public List<int> ContainersHistory;
 
         public Ship(int ID, int width, int depth, Grid shipDataGrid)
         {
             this.ID = ID;
-            this.width = width;
-            this.depth = depth;
-            shipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
-            shipHistory = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
+            Width = width;
+            Depth = depth;
+            ShipData = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
+            ShipHistory = new SeriesCollection { new LineSeries { Values = new ChartValues<int>() } };
 
             if ( !(shipDataGrid is null) )
             {
-                setupLabel(ID, shipDataGrid);
-                setupPlot(ID, shipDataGrid);
+                SetupLabel(ID, shipDataGrid);
+                SetupPlot(ID, shipDataGrid);
             }
         }
 
         #region initializing ship
-        private void setupPlot(int id, Grid shipDataGrid)
+        private void SetupPlot(int id, Grid shipDataGrid)
         {
             Random r = new Random();
 
-            logger.Info("Initializing ship's plot");
+            Logger.Info("Initializing ship's plot");
 
-            shipHistory[0].Values.CollectionChanged += UpdateDisplay;
-            shipHistory[0].Values.CollectionChanged += RecalculateAverage;
+            ShipHistory[0].Values.CollectionChanged += UpdateDisplay;
+            ShipHistory[0].Values.CollectionChanged += RecalculateAverage;
 
-            ship = new CartesianChart();
-            ship.Hoverable = false;
-            ship.Margin = new Thickness(0, 0, 0, 5);
-            shipDataGrid.Children.Add(ship);
-            Grid.SetRow(ship, id + 1);
-            Grid.SetColumn(ship, 1);
+            _cartesianChart = new CartesianChart();
+            _cartesianChart.Hoverable = false;
+            _cartesianChart.Margin = new Thickness(0, 0, 0, 5);
+            shipDataGrid.Children.Add(_cartesianChart);
+            Grid.SetRow(_cartesianChart, id + 1);
+            Grid.SetColumn(_cartesianChart, 1);
 
             Binding dataBinding = new Binding("shipData");
             dataBinding.Source = this;
 
-            ship.SetBinding(CartesianChart.SeriesProperty, dataBinding);
+            _cartesianChart.SetBinding(CartesianChart.SeriesProperty, dataBinding);
 
-            logger.Info("Initializing ship's plot finished");
+            Logger.Info("Initializing ship's plot finished");
         }
 
-        private void setupLabel(int id, Grid shipDataGrid)
+        private void SetupLabel(int id, Grid shipDataGrid)
         {
-            logger.Info("Initializing ship's label");
+            Logger.Info("Initializing ship's label");
 
-            avg = "0";
-            average = new Label();
-            average.FontFamily = new System.Windows.Media.FontFamily("Segoe UI Semibold");
-            average.Foreground = new SolidColorBrush(Colors.White);
-            average.VerticalAlignment = VerticalAlignment.Bottom;
-            average.HorizontalAlignment = HorizontalAlignment.Center;
-            average.FontSize = 24;
-            shipDataGrid.Children.Add(average);
-            Grid.SetRow(average, id + 1);
-            Grid.SetColumn(average, 2);
+            Avg = "0";
+            _averageLabel = new Label
+            {
+                FontFamily = new FontFamily("Segoe UI Semibold"),
+                Foreground = new SolidColorBrush(Colors.White),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontSize = 24
+            };
+            shipDataGrid.Children.Add(_averageLabel);
+            Grid.SetRow(_averageLabel, id + 1);
+            Grid.SetColumn(_averageLabel, 2);
 
-            Binding textBinding = new Binding("avg");
-            textBinding.Source = this;
+            Binding textBinding = new Binding("avg")
+            {
+                Source = this
+            };
 
-            average.SetBinding(Label.ContentProperty, textBinding);
+            _averageLabel.SetBinding(Label.ContentProperty, textBinding);
 
-            logger.Info("Initializing ship's label finished");
+            Logger.Info("Initializing ship's label finished");
         }
         #endregion
 
@@ -111,15 +108,15 @@ namespace IOships
         {
             double mean = 0;
 
-            foreach (int num in shipHistory[0].Values)
+            foreach (int num in ShipHistory[0].Values)
                 mean += num;
 
-            mean /= shipHistory[0].Values.Count;
-            avg = $"Avg: {(int)mean}";
+            mean /= ShipHistory[0].Values.Count;
+            Avg = $"Avg: {(int)mean}";
 
-            logger.Trace($"New mean calculated for ID {ID}: {mean}");
+            Logger.Trace($"New mean calculated for ID {ID}: {mean}");
 
-            logger.Trace($"Updating label if {ID} to \"{avg}\"");
+            Logger.Trace($"Updating label if {ID} to \"{Avg}\"");
             OnPropertyChanged("avg");
         }
 
@@ -128,32 +125,28 @@ namespace IOships
         /// </summary>
         private void UpdateDisplay(object sender, EventArgs args)
         {
-            this.shipData[0].Values.Add(containersHistory.Count);
+            ShipData[0].Values.Add(ContainersHistory.Count);
 
-            if (shipData[0].Values.Count == 8)
-                shipData[0].Values.RemoveAt(0);
+            if (ShipData[0].Values.Count == 8)
+                ShipData[0].Values.RemoveAt(0);
         }
 
         protected void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
     /// <summary>
-    /// Provides wrapper for List<Ship> so that new ships can be added seamlessly
+    /// Provides wrapper for List of Ship so that new ships can be added seamlessly
     /// </summary>
     public class CargoShipCollection : List<Ship>
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        private Grid boundGrid;
-        private int iterator = 0;
-        public IStrategy dataGenStrategy;
+        private readonly Grid _boundGrid;
+        private int _iterator = 0;
+        public IStrategy DataGenStrategy;
 
         /// <summary>
         /// Binds collection to grid
@@ -162,50 +155,40 @@ namespace IOships
         public CargoShipCollection(Grid boundGrid)
         {
             if ( !(boundGrid is null) )
-                this.boundGrid = boundGrid;
+                _boundGrid = boundGrid;
         }
 
         /// <summary>
         /// Adds new ship to collection
         /// </summary>
         /// <param name="width">Width of ship's hold</param>
-        /// <param name="height">Height of ship's hold</param>
         /// <param name="depth">Depth of ship's hold</param>
         public void Add(int width, int depth)
         {
-            if (iterator == 5)
+            if (_iterator == 5)
                 throw new IndexOutOfRangeException("Trying to add too many ships!");
 
-            this.Add(new Ship(iterator, width, depth, boundGrid));
-            iterator++;
-        }
-
-        /// <summary>
-        /// Sets loading strategy for this collection
-        /// </summary>
-        /// <param name="strategy">Collectionwise strategy that will be used to load containers onto ship</param>
-        public void SetStrategy(IStrategy strategy)
-        {
-            dataGenStrategy = strategy;
+            Add(new Ship(_iterator, width, depth, _boundGrid));
+            _iterator++;
         }
 
         public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(LoadingMode mode, ContainersCollection containers)
         {
-            if (dataGenStrategy is null)
+            if (DataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
 
-            logger.Debug("Loading containers collectionwise");
-            Dictionary<int, InstructionsHelper> res = dataGenStrategy.GenerateData(this, containers);
+            Logger.Debug("Loading containers collectionwise");
+            Dictionary<int, InstructionsHelper> res = DataGenStrategy.GenerateData(this, containers);
 
-            foreach (int i in res.Keys)
+            foreach (var i in res.Keys)
             {
                 await Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() => {
-                    this[i].containersHistory = res[i].Instructions.Values.ToList<int>();
-                    this[i].shipHistory[0].Values.Add(res[i].Instructions.Count);
+                    this[i].ContainersHistory = res[i].Instructions.Values.ToList();
+                    this[i].ShipHistory[0].Values.Add(res[i].Instructions.Count);
                 }));
             }
 
-            logger.Trace("Updated ships data");
+            Logger.Trace("Updated ships data");
 
             return res;
         }

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IOships
 {
@@ -11,12 +8,12 @@ namespace IOships
     /// </summary>
     public struct Container
     {
-        public int width;
-        public int depth;
+        public int Width;
+        public int Depth;
 
         public int ID;
-        public int turnCreated;
-        public int? turnDeleted;
+        public int TurnCreated;
+        public int? TurnDeleted;
 
         /// <summary>
         /// Creates container structure with given parameters
@@ -27,16 +24,16 @@ namespace IOships
         /// <param name="turnCreated">Turn in which the container arrived</param>
         public Container(int width, int depth, int id, int turnCreated)
         {
-            this.width = width;
-            this.depth = depth;
-            this.ID = id;
-            this.turnCreated = turnCreated;
-            this.turnDeleted = null;
+            Width = width;
+            Depth = depth;
+            ID = id;
+            TurnCreated = turnCreated;
+            TurnDeleted = null;
         }
     }
 
     /// <summary>
-    /// Provides wrapper for List<Container> so that new ships can be added seamlessly
+    /// Provides wrapper for List of Containers so that new ships can be added seamlessly
     /// </summary>
     public class ContainersCollection : List<Container>
     {
@@ -47,7 +44,7 @@ namespace IOships
 
         public void Add(ContainersCollection conts)
         {
-            foreach (Container a in conts)
+            foreach (var a in conts)
                 Add(a);
         }
 
@@ -56,13 +53,13 @@ namespace IOships
         /// </summary>
         /// <param name="currentTurn">Current turn in simulation</param>
         /// <returns>Dictionary of containers' age and count</returns>
-        public Dictionary<int, int> getAgeAndCount(int currentTurn)
+        public Dictionary<int, int> GetAgeAndCount(int currentTurn)
         {
             Dictionary<int, int> ages = new Dictionary<int, int>();
 
             foreach (Container a in this)
             {
-                int key = currentTurn - a.turnCreated;
+                int key = currentTurn - a.TurnCreated;
 
                 if (!ages.ContainsKey(key))
                     ages.Add(key, 1);
@@ -75,9 +72,9 @@ namespace IOships
 
         public override string ToString()
         {
-            string res = "";
+            var res = "";
             foreach (Container i in this)
-                res += i.ID.ToString()+"; ";
+                res += i.ID+"; ";
 
             return res;
         }
@@ -87,6 +84,7 @@ namespace IOships
         /// Adds randomly created containers. Placeholder method, it should be read from csv
         /// </summary>
         /// <param name="num">Number of containers to add</param>
+        /// <param name="turn">Number of current turn</param>
         public void AddRandom(int num, int turn)
         {
             Random random = new Random();
@@ -102,7 +100,7 @@ namespace IOships
         {
             foreach(Container c in this)
                 if (c.ID == ID)
-                    this.Remove(c);
+                    Remove(c);
         }
     }
 }
