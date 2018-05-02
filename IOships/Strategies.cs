@@ -12,7 +12,7 @@ namespace IOships
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
-        public Dictionary<Coords, int> Instructions;
+        public readonly Dictionary<Coords, int> Instructions;
 
         public InstructionsHelper(Ship s)
         {
@@ -75,6 +75,17 @@ namespace IOships
                     _occupied[i, j] = true;
 
             Instructions.Add(new Coords { X = x, Y = y }, container.ID);
+        }
+
+        public IEnumerable<string> RowVisualisation()
+        {
+            for (var i=0; i<_maxDepth; i++)
+            {
+                var row = "";
+                for (var j = 0; j < _maxWidth; j++)
+                    row += _occupied[j, i] ? "1" : "0";
+                yield return row;
+            }
         }
     }
 

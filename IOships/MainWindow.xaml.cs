@@ -1,4 +1,5 @@
 ﻿// Enables minimum mode for testing algorithms
+
 #define MINIMUM_MODE
 
 using System;
@@ -20,8 +21,8 @@ namespace IOships
 
         private readonly CargoShipCollection _cargoShips;
         public SeriesCollection SeriesCollection { get; set; }
-        public ContainersCollection Containers;
-        public int Turn;
+        private readonly ContainersCollection _containers;
+        private int _turn;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -30,7 +31,7 @@ namespace IOships
 #if !MINIMUM_MODE
             InitializeComponent();
             _cargoShips = new CargoShipCollection(shipDataGrid);
-            Containers = new ContainersCollection();
+            _containers = new ContainersCollection();
             SeriesCollection = new SeriesCollection
             {
                 new PieSeries
@@ -47,10 +48,10 @@ namespace IOships
                 }
             };
 
-            Containers.AddRandom(100, Turn);
+            _containers.AddRandom(100, _turn);
 
-            for(int i=0; i<5; i++)
-                _cargoShips.Add(90, 160);
+            for(int i = 0; i<5; i++)
+                _cargoShips.Add(20, 32);
 
             _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
 
@@ -60,29 +61,29 @@ namespace IOships
             Hide();
 
             // Initialize everything
-            Containers = new ContainersCollection();                        
+            _containers = new ContainersCollection();
             SeriesCollection = new SeriesCollection();
             _cargoShips = new CargoShipCollection(null);
             for (var i = 0; i < 5; i++)
-                _cargoShips.Add(90, 160);
+                _cargoShips.Add(20, 32);
 
             // Implement RandomcCollectionStrategy
-            _cargoShips.DataGenStrategy = new RandomCollectionStrategy();    
+            _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
 
-            Containers.AddRandom(100, Turn);
+            _containers.AddRandom(100, _turn);
             _ss = new SummaryScreen();
             _ss.Show();
 
             // Make sure program closes after SS is closed
-            _ss.SyncronizationClosedEvent += delegate { Close(); } ;                      
-            GenerateLoadingInstructions((int)LoadingMode.Random);           // Right now the argument does not change anything
+            _ss.SyncronizationClosedEvent += delegate { Close(); };
+            GenerateLoadingInstructions((int) LoadingMode.Random); // Right now the argument does not change anything
 #endif
         }
 
         private void UpdatePie()
         {
             SeriesCollection.Clear();
-            Dictionary<int, int> data = Containers.GetAgeAndCount(Turn);
+            Dictionary<int, int> data = _containers.GetAgeAndCount(_turn);
 
             foreach (var key in data.Keys)
             {
@@ -105,7 +106,7 @@ namespace IOships
                     SeriesCollection.Add(new PieSeries
                     {
                         Title = title,
-                        Values = new ChartValues<ObservableValue> { new ObservableValue(data[key]) },
+                        Values = new ChartValues<ObservableValue> {new ObservableValue(data[key])},
                         DataLabels = true
                     });
                 }
@@ -116,14 +117,13 @@ namespace IOships
                 if (key >= 3)
                     sum += data[key];
 
-            if(sum>0)
+            if (sum > 0)
                 SeriesCollection.Add(new PieSeries
                 {
                     Title = "Waiting for 3+ rounds",
-                    Values = new ChartValues<ObservableValue> { new ObservableValue(sum) },
+                    Values = new ChartValues<ObservableValue> {new ObservableValue(sum)},
                     DataLabels = true
                 });
-
         }
 
         private void btn_ship_Click(object sender, RoutedEventArgs e)
@@ -140,9 +140,9 @@ namespace IOships
 
             _ss = new SummaryScreen();
             _ss.Show();
-            
-            Turn++;
-            Containers.AddRandom(100, Turn);
+
+            _turn++;
+            _containers.AddRandom(100, _turn);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace IOships
         private async void GenerateLoadingInstructions(int mode)
         {
             Logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers((LoadingMode)mode, Containers);
+            Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers((LoadingMode) mode, _containers);
 
             Dictionary<int, InstructionsHelper> results = await res;
 
@@ -159,11 +159,16 @@ namespace IOships
             {
                 _ss.AddToMessage($"\n\n-----------------{ID}-----------------");
                 _ss.AddToMessage($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
-                _ss.AddToMessage($"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{_cargoShips[ID].Width*_cargoShips[ID].Depth}\n");
+                _ss.AddToMessage(
+                    $"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{_cargoShips[ID].Width * _cargoShips[ID].Depth}\n");
 
                 foreach (Coords coords in results[ID].Instructions.Keys)
                     _ss.AddToMessage($"\n{coords.X}, {coords.Y}:\t{results[ID].Instructions[coords]}");
+
+                foreach (var row in results[ID].RowVisualisation())
+                    _ss.AddToMessage($"\n{row}");
             }
+
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
                 lbl_status.Content = "Cargo ready to be shipped";
