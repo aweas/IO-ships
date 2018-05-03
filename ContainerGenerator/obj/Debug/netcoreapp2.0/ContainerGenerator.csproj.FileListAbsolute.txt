@@ -1,0 +1,11 @@
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.csprojResolveAssemblyReference.cache
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.csproj.CoreCompileInputs.cache
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.AssemblyInfoInputs.cache
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.AssemblyInfo.cs
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\bin\Debug\netcoreapp2.0\ContainerGenerator.deps.json
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\bin\Debug\netcoreapp2.0\ContainerGenerator.runtimeconfig.json
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\bin\Debug\netcoreapp2.0\ContainerGenerator.runtimeconfig.dev.json
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\bin\Debug\netcoreapp2.0\ContainerGenerator.dll
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\bin\Debug\netcoreapp2.0\ContainerGenerator.pdb
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.dll
+C:\Users\Gryzoń\Desktop\Code\C#\ContainerGenerator\obj\Debug\netcoreapp2.0\ContainerGenerator.pdb
