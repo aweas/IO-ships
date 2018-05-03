@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace IOships
 {
@@ -45,6 +47,35 @@ namespace IOships
         {
             foreach (var a in conts)
                 Add(a);
+        }
+
+        /* TODO: check for duplicates, add turns to csv files (?) */
+        /// <summary>
+        /// Loads containers from .csv files
+        /// </summary>
+        /// <param name="filename">Path to .csv file</param>
+        /// <param name="turn">Specifies load turn for loaded containers</param>    
+        public void loadCSV(string filename, Int32 turn)
+        {
+            string line;
+            List<string> aux = new List<string>();
+
+            using(StreamReader data = new StreamReader(path: filename))
+            {
+                data.ReadLine();
+                while( (line = data.ReadLine()) != null)
+                {
+                    Int32 id,w,d;
+
+                    aux = line.Split(';').ToList();
+                    
+                    id = Int32.Parse(aux[0]);
+                    w  = Int32.Parse(aux[1]);
+                    d  = Int32.Parse(aux[2]);
+
+                    this.Add(w,d,id,turn);
+                }
+            }
         }
 
         /// <summary>
