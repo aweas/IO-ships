@@ -87,6 +87,13 @@ namespace IOships
                 yield return row;
             }
         }
+
+        public bool isContPresent(int id)
+        {
+            if(Instructions.ContainsValue(id))
+                return true;
+            return false;
+        }
     }
 
     public enum LoadingMode { Iterative, Random }
