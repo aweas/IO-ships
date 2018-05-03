@@ -68,6 +68,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Containers.cs" />
+    <Compile Include="genAlgorithm.cs" />
     <Compile Include="Ships.cs" />
     <Compile Include="Strategies.cs" />
     <Compile Include="SummaryScreen.xaml.cs">

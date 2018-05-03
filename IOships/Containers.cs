@@ -24,12 +24,16 @@ namespace IOships
         /// <param name="depth">Depth of the container</param>
         /// <param name="id">Container ID</param>
         /// <param name="turnCreated">Turn in which the container arrived</param>
-        public Container(int width, int depth, int id, int turnCreated)
+        public Container(int width, int depth, int id, int? turnCreated)
         {
             Width = width;
             Depth = depth;
             ID = id;
-            TurnCreated = turnCreated;
+
+            if (turnCreated != null)
+                TurnCreated = (int) turnCreated;
+            else
+                TurnCreated = 0;
         }
     }
 
@@ -55,25 +59,21 @@ namespace IOships
         /// </summary>
         /// <param name="filename">Path to .csv file</param>
         /// <param name="turn">Specifies load turn for loaded containers</param>    
-        public void loadCSV(string filename, Int32 turn)
+        public void LoadCsv(string filename, int turn)
         {
-            string line;
-            List<string> aux = new List<string>();
-
-            using(StreamReader data = new StreamReader(path: filename))
+            using (var data = new StreamReader(filename))
             {
                 data.ReadLine();
+                string line;
                 while( (line = data.ReadLine()) != null)
                 {
-                    Int32 id,w,d;
+                    List<string> aux = line.Split(';').ToList();
 
-                    aux = line.Split(';').ToList();
-                    
-                    id = Int32.Parse(aux[0]);
-                    w  = Int32.Parse(aux[1]);
-                    d  = Int32.Parse(aux[2]);
+                    var id = int.Parse(aux[0]);
+                    var w = int.Parse(aux[1]);
+                    var d = int.Parse(aux[2]);
 
-                    this.Add(w,d,id,turn);
+                    Add(w,d,id,turn);
                 }
             }
         }

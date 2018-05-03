@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IOships", "IOships\IOships.csproj", "{1DE82609-E0D8-408D-951D-65AF54F7494F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContainerManagerUnitTests", "UnitTestProject1\ContainerManagerUnitTests.csproj", "{62E953D6-EB3F-4956-9B90-9E8C6222C741}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContainerGenerator", "ContainerGenerator\ContainerGenerator.csproj", "{4F24F879-2765-409F-AAE4-6EAFA1B52C9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{1DE82609-E0D8-408D-951D-65AF54F7494F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DE82609-E0D8-408D-951D-65AF54F7494F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DE82609-E0D8-408D-951D-65AF54F7494F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62E953D6-EB3F-4956-9B90-9E8C6222C741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62E953D6-EB3F-4956-9B90-9E8C6222C741}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62E953D6-EB3F-4956-9B90-9E8C6222C741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62E953D6-EB3F-4956-9B90-9E8C6222C741}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F24F879-2765-409F-AAE4-6EAFA1B52C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F24F879-2765-409F-AAE4-6EAFA1B52C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F24F879-2765-409F-AAE4-6EAFA1B52C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F24F879-2765-409F-AAE4-6EAFA1B52C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,108 +7,115 @@ namespace IOships
     /// <summary>
     /// Genetic algorithm's logic resides here
     /// </summary>
-    class genAlgorithm : ICollectionwiseStrategy
+    class GenAlgorithm : IStrategy
     {
-        CargoShipCollection ships;
-        ContainersCollection containers;
+        private CargoShipCollection _ships;
+        private ContainersCollection _containers;
 
-        struct specimen
+        struct Specimen
         {
-            public double fitness;
-            public List<InstructionsHelper> shipCargo;
+            private double _fitness;
+            private readonly List<InstructionsHelper> _shipCargo;
 
             ///<summary>
             /// Initialiyes specimen with its cargo holds/ships representation
-            ///<summary>
-            public specimen(CargoShipCollection ships)
+            ///</summary>
+            public Specimen(CargoShipCollection ships)
             {
-                fitness = 0;
-                shipCargo = new List<InstructionsHelper>();
+                _fitness = 0;
+                _shipCargo = new List<InstructionsHelper>();
 
-                for(Int32 i=0;i<ships.Count;++i)
+                foreach (var ship in ships)
                 {
-                    shipCargo.Add(new InstructionsHelper(ships[i]));
+                    _shipCargo.Add(new InstructionsHelper(ship));
                 }
             }
 
             ///<summary>
             /// Allocates not allocated containers randomly throught all ships after crossover
-            ///<summary>
+            ///</summary>
             ///<param name="containers">Requires list of all containers, doesn't duplicate containers in hold</param>
-            public void repair(ContainersCollection containers)
+            public void Repair(ContainersCollection containers)
             {
-                bool found;
-
-                for(Int32 i=0;i<containers.Count;++i)
+                foreach (var c in containers)
                 {
-                    found = false;
+                    var found = false;
 
-                    Container container = containers[i];
-                    for (Int32 j = 0; j < shipCargo.Count; ++j)         // check if container is present on any ship
-                        if (shipCargo[j].isContPresent(container.ID))
-                        {
-                            found = true;
-                            break;
-                        }
+                    Container container = c;
+                    foreach (var ship in _shipCargo)
+                    {
+                        if (!ship.IsContPresent(container.ID)) continue;
+
+                        found = true;
+                        break;
+                    }
 
                     if (!found)
                     {
                         /* TODO: randomize container location checking if can occupy, also check if there's still space anywhere */
+                        throw new NotImplementedException();
                     }
-
                 }
             }
 
             ///<summary>
             /// Randomly redistributes a random amount of containers through ships
-            ///<summary>
-            public void mutate()
+            ///</summary>
+            public void Mutate()
             {
                 /* TODO: redistribute random amount of containers throught ships checking if can occupy */
+
+                throw new NotImplementedException();
             }
 
             ///<summary>
             /// Recalculates specimen's fitness
-            ///<summary>
-            public void evaluate()
+            ///</summary>
+            public void Evaluate()
             {
-                double average,sumOfSquaresOfDifferences;
-                List<double> percentages = new List<double>();
+                var percentages = new List<double>();
 
-                for(Int32 i=0;i<shipCargo.Count;++i)
-                    percentages.Add(shipCargo[i].GetPercentageFilled());
+                foreach (var ship in _shipCargo)
+                    percentages.Add(ship.GetPercentageFilled());
 
-                average = percentages.Average();
-                sumOfSquaresOfDifferences = percentages.Select(val => (val - average) * (val - average)).Sum();
-                this.fitness = Math.Sqrt(sumOfSquaresOfDifferences / percentages.Count); 
+                double average = percentages.Average();
+                double sumOfSquaresOfDifferences = percentages.Select(val => (val - average) * (val - average)).Sum();
+
+                this._fitness = Math.Sqrt(sumOfSquaresOfDifferences / percentages.Count);
             }
         }
 
-        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships,
+            ContainersCollection containers)
         {
-            this.ships = ships;
-            this.containers = containers;
+            this._ships = ships;
+            this._containers = containers;
 
             return null;
         }
 
-        public void initialFill()
+        public void InitialFill()
         {
             /* TODO: use specimen.repair() to initially fill all ships */
+
+            throw new NotImplementedException();
         }
 
-        public void crossover()
+        public void Crossover()
         {
             /* TODO: give child one or more ships from each parent checking for duplicates, randomly deleting them
             then repair solutions, or come up with a better crossover strategy */
 
             /* TODO: come up with an auxiliary function for creating a child; use this function for replacing weaker specimen only */
+
+            throw new NotImplementedException();
         }
 
-        public void evaluateSpecimens()
+        public void EvaluateSpecimens()
         {
             /* TODO: use specimen.evaluate() on all specimen and then sort them accordingly */
-        }
 
+            throw new NotImplementedException();
+        }
     }
 }

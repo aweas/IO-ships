@@ -88,11 +88,9 @@ namespace IOships
             }
         }
 
-        public bool isContPresent(int id)
+        public bool IsContPresent(int id)
         {
-            if(Instructions.ContainsValue(id))
-                return true;
-            return false;
+            return Instructions.ContainsValue(id);
         }
     }
 
