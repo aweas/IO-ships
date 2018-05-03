@@ -8,12 +8,12 @@ namespace IOships
     /// </summary>
     public struct Container
     {
-        public int Width;
-        public int Depth;
+        public readonly int Width;
+        public readonly int Depth;
+        public int Size => Width * Depth;
 
-        public int ID;
-        public int TurnCreated;
-        public int? TurnDeleted;
+        public readonly int ID;
+        public readonly int TurnCreated;
 
         /// <summary>
         /// Creates container structure with given parameters
@@ -28,7 +28,6 @@ namespace IOships
             Depth = depth;
             ID = id;
             TurnCreated = turnCreated;
-            TurnDeleted = null;
         }
     }
 
@@ -79,7 +78,6 @@ namespace IOships
             return res;
         }
 
-        //TODO: Add function that reads input from CSV
         /// <summary>
         /// Adds randomly created containers. Placeholder method, it should be read from csv
         /// </summary>

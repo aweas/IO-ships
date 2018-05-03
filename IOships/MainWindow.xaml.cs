@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using LiveCharts;
@@ -17,12 +18,15 @@ namespace IOships
     // ReSharper disable once UnusedMember.Global
     public partial class MainWindow
     {
-        private SummaryScreen _ss;
+        public SeriesCollection SeriesCollection { get; set; }
+
+        public List<IStrategy> AvailableStrategies { get; set; }
 
         private readonly CargoShipCollection _cargoShips;
-        public SeriesCollection SeriesCollection { get; set; }
         private readonly ContainersCollection _containers;
         private int _turn;
+
+        private SummaryScreen _ss;
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -30,53 +34,30 @@ namespace IOships
         {
 #if !MINIMUM_MODE
             InitializeComponent();
-            _cargoShips = new CargoShipCollection(shipDataGrid);
-            _containers = new ContainersCollection();
-            SeriesCollection = new SeriesCollection
-            {
-                new PieSeries
-                {
-                    Title = "Newly arrived containers",
-                    Values = new ChartValues<ObservableValue> { new ObservableValue(250) },
-                    DataLabels = true
-                },
-                new PieSeries
-                {
-                    Title = "Waiting for 1 round",
-                    Values = new ChartValues<ObservableValue> { new ObservableValue(130) },
-                    DataLabels = true
-                }
-            };
-
-            _containers.AddRandom(100, _turn);
-
-            for(int i = 0; i<5; i++)
-                _cargoShips.Add(32, 20);
-
-            _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
-
             DataContext = this;
-#else
-            // Hide GUI
-            Hide();
+#endif
 
-            // Initialize everything
-            _containers = new ContainersCollection();
+            _cargoShips = new CargoShipCollection(shipDataGrid);
             SeriesCollection = new SeriesCollection();
-            _cargoShips = new CargoShipCollection(null);
-            for (var i = 0; i < 5; i++)
+            _containers = new ContainersCollection();
+            _containers.AddRandom(100, _turn);
+            
+
+            for (int i = 0; i < 5; i++)
                 _cargoShips.Add(32, 20);
 
-            // Implement RandomcCollectionStrategy
             _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
 
-            _containers.AddRandom(100, _turn);
+#if MINIMUM_MODE
+            Hide();
             _ss = new SummaryScreen();
             _ss.Show();
 
             // Make sure program closes after SS is closed
             _ss.SyncronizationClosedEvent += delegate { Close(); };
             GenerateLoadingInstructions((int) LoadingMode.Random); // Right now the argument does not change anything
+#else
+            UpdatePie();
 #endif
         }
 
@@ -85,7 +66,7 @@ namespace IOships
             SeriesCollection.Clear();
             Dictionary<int, int> data = _containers.GetAgeAndCount(_turn);
 
-            foreach (var key in data.Keys)
+            foreach (var key in data.Keys.Reverse())
             {
                 if (key < 3)
                 {

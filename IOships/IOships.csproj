@@ -73,6 +73,7 @@
     <Compile Include="SummaryScreen.xaml.cs">
       <DependentUpon>SummaryScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
