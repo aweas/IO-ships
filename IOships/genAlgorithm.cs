@@ -91,7 +91,7 @@ namespace IOships
             this._ships = ships;
             this._containers = containers;
 
-            return null;
+            throw new NotImplementedException();
         }
 
         public void InitialFill()

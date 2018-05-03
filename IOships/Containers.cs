@@ -14,7 +14,7 @@ namespace IOships
         public readonly int Depth;
         public int Size => Width * Depth;
 
-        public readonly int ID;
+        public readonly Guid ID;
         public readonly int TurnCreated;
 
         /// <summary>
@@ -22,13 +22,13 @@ namespace IOships
         /// </summary>
         /// <param name="width">Width of the container</param>
         /// <param name="depth">Depth of the container</param>
-        /// <param name="id">Container ID</param>
         /// <param name="turnCreated">Turn in which the container arrived</param>
-        public Container(int width, int depth, int id, int? turnCreated)
+        /// 
+        public Container(int width, int depth, int? turnCreated)
         {
             Width = width;
             Depth = depth;
-            ID = id;
+            ID = Guid.NewGuid();
 
             if (turnCreated != null)
                 TurnCreated = (int) turnCreated;
@@ -44,7 +44,7 @@ namespace IOships
     {
         public void Add(int width, int depth, int id, int turn)
         {
-            Add(new Container (width, depth, id, turn));
+            Add(new Container(width, depth, turn));
         }
 
         public void Add(ContainersCollection conts)
@@ -125,7 +125,7 @@ namespace IOships
         /// Remove container with given ID
         /// </summary>
         /// <param name="ID">ID of container to remove</param>
-        public void Remove(int ID)
+        public void Remove(Guid ID)
         {
             foreach(Container c in this)
                 if (c.ID == ID)

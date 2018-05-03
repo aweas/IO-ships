@@ -12,7 +12,7 @@ namespace IOships
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
-        public readonly Dictionary<Coords, int> Instructions;
+        public readonly Dictionary<Coords, Guid> Instructions;
 
         public InstructionsHelper(Ship s)
         {
@@ -25,7 +25,7 @@ namespace IOships
             _maxWidth = s.Width;
             _maxDepth = s.Depth;
 
-            Instructions = new Dictionary<Coords, int>();
+            Instructions = new Dictionary<Coords, Guid>();
         }
 
         public int GetPercentageFilled()
@@ -88,7 +88,7 @@ namespace IOships
             }
         }
 
-        public bool IsContPresent(int id)
+        public bool IsContPresent(Guid id)
         {
             return Instructions.ContainsValue(id);
         }

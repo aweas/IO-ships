@@ -27,7 +27,6 @@ namespace ContainerGenerator
                 Containers.Add(new Container(
                     width: _SampleGaussian(_rng, 3, 0.5),
                     depth: _SampleGaussian(_rng, 8, 1),
-                    id: (int) (i + lastID + 1),
                     turnCreated: null));
 
             if (!(filename is null))

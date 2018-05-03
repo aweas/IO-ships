@@ -31,7 +31,7 @@ namespace IOships
         public String Avg { get; set; }
         public SeriesCollection ShipHistory { get; }
         public SeriesCollection ShipData { get; }
-        public List<int> ContainersHistory;
+        public List<Guid> ContainersHistory;
 
         public Ship(int ID, int width, int depth, Grid shipDataGrid)
         {
