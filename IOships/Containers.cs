@@ -35,6 +35,14 @@ namespace IOships
             else
                 TurnCreated = 0;
         }
+
+        public Container(int width, int depth, int turnCreated, Guid id)
+        {
+            ID = id;
+            TurnCreated = turnCreated;
+            Width = width;
+            Depth = depth;
+        }
     }
 
     /// <summary>
@@ -42,15 +50,9 @@ namespace IOships
     /// </summary>
     public class ContainersCollection : List<Container>
     {
-        public void Add(int width, int depth, int id, int turn)
+        private void Add(int width, int depth, int turn, Guid id)
         {
-            Add(new Container(width, depth, turn));
-        }
-
-        public void Add(ContainersCollection conts)
-        {
-            foreach (var a in conts)
-                Add(a);
+            Add(new Container(width, depth, turn, id));
         }
 
         /* TODO: check for duplicates, add turns to csv files (?) */
@@ -69,11 +71,11 @@ namespace IOships
                 {
                     List<string> aux = line.Split(';').ToList();
 
-                    var id = int.Parse(aux[0]);
+                    var id = Guid.Parse(aux[0]);
                     var w = int.Parse(aux[1]);
                     var d = int.Parse(aux[2]);
 
-                    Add(w,d,id,turn);
+                    Add(w, d, turn, id);
                 }
             }
         }
@@ -107,18 +109,6 @@ namespace IOships
                 res += i.ID+"; ";
 
             return res;
-        }
-
-        /// <summary>
-        /// Adds randomly created containers. Placeholder method, it should be read from csv
-        /// </summary>
-        /// <param name="num">Number of containers to add</param>
-        /// <param name="turn">Number of current turn</param>
-        public void AddRandom(int num, int turn)
-        {
-            Random random = new Random();
-            for (int i = 0; i < num; i++)
-                Add(random.Next(1, 10), random.Next(1, 10), random.Next(), turn);
         }
 
         /// <summary>

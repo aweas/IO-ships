@@ -17,9 +17,8 @@ namespace ContainerGenerator
         /// Generates specified amount of conatiners, initial ID can be specified for multiple file consistency sake
         /// </summary>
         /// <param name="amount">Amount of containers</param>
-        /// <param name="lastID">Initial unique id for use in labelling</param>
         /// <param name="filename">Name of target generation file</param>
-        public void Generate(uint amount, uint lastID = 0, string filename = null)
+        public void Generate(uint amount, string filename = null)
         {
             Containers = new List<Container>(capacity: (int) amount);
 
@@ -79,7 +78,8 @@ namespace ContainerGenerator
 
         public static void Main()
         {
-
+            var cg = new ContainerGenerator();
+            cg.Generate(150, "containers");
         }
     }
 }

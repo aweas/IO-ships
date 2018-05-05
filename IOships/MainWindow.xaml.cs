@@ -41,8 +41,9 @@ namespace IOships
             _cargoShips = new CargoShipCollection(shipDataGrid);
             SeriesCollection = new SeriesCollection();
             _containers = new ContainersCollection();
-            _containers.AddRandom(100, _turn);
-            
+
+            Tools.ContainerGenerator.Generate();
+            _containers.LoadCsv("containers.csv", _turn);         
 
             for (int i = 0; i < 5; i++)
                 _cargoShips.Add(32, 20);
@@ -124,7 +125,9 @@ namespace IOships
             _ss.Show();
 
             _turn++;
-            _containers.AddRandom(100, _turn);
+
+            Tools.ContainerGenerator.Generate();
+            _containers.LoadCsv("containers.csv", _turn);
         }
 
         /// <summary>

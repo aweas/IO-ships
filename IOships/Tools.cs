@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -8,7 +10,7 @@ using IOships;
 
 namespace Tools
 {
-
+    // Sorters
     public interface ISorter<T>
     {
         List<T> Sort(List<T> t);
@@ -59,5 +61,41 @@ namespace Tools
             return result;
         }
     }
-    
+
+    public class LayeredSorter<T>
+    {
+        private ISorter<T> _primary;
+        private ISorter<T> _secondary;
+
+        public LayeredSorter(ISorter<T> primary, ISorter<T> secondary)
+        {
+            _primary = primary;
+            _secondary = secondary;
+        }
+    }
+
+    // Generator process handling
+    public static class ContainerGenerator
+    {
+        public static string Filename = "ContainerGenerator.exe";
+        public static Process GeneratorProcess;
+
+        public static void Generate()
+        {
+            if(Filename is null)
+                throw new Exception("Generator .exe path is not set");
+
+            if(File.Exists("containers.csv"))
+                File.Delete("containers.csv");
+
+            GeneratorProcess = new Process();
+            GeneratorProcess.StartInfo.FileName = Filename;
+            GeneratorProcess.StartInfo.UseShellExecute = false;
+            GeneratorProcess.StartInfo.CreateNoWindow = true;
+
+            GeneratorProcess.Start();
+
+            GeneratorProcess.WaitForExit();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IOships
 {
@@ -172,9 +173,12 @@ namespace IOships
         {
             Logger.Trace("Starting data generation");
 
-            var sorter = new Tools.ContainerSorter();
-            var sorted = sorter.OrderBy("Size").Sort(containers);
-            sorted.Reverse();
+            //var sorter = new Tools.ContainerSorter();
+            //var sorted = sorter.OrderBy("Size").Sort(containers);
+            //sorted.Reverse();
+
+            //sorted = containers.OrderBy(s => s.TurnCreated).ThenBy(s => s.Size).ToList();
+            //TODO: Sort containers
 
             Dictionary<int, InstructionsHelper> res = new Dictionary<int, InstructionsHelper>();
             foreach (Ship s in ships)

@@ -27,7 +27,7 @@ namespace UnitTests
         public void FileCreationTest()
         {
             var generator = new ContainerGenerator.ContainerGenerator();
-            generator.Generate(10, 0, "containers");
+            generator.Generate(10, "containers");
 
             using (var data = new StreamReader(path: "containers.csv"))
             {
