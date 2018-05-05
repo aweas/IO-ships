@@ -3,23 +3,33 @@ using System.Collections.Generic;
 
 namespace IOships
 {
-    public struct Coords { public int X; public int Y; }
+    public struct Coords
+    {
+        public int X;
+        public int Y;
+    }
 
     public class InstructionsHelper
     {
         private readonly bool[,] _occupied;
+
         private readonly int _maxWidth;
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
         public readonly Dictionary<Coords, Guid> Instructions;
 
+        public bool IsOccupied(int x, int y)
+        {
+            return _occupied[x, y];
+        }
+
         public InstructionsHelper(Ship s)
         {
             _occupied = new bool[s.Width, s.Depth];
             for (var i = 0; i < s.Width; i++)
-                for (var j = 0; j < s.Depth; j++)
-                    _occupied[i, j] = false;
+            for (var j = 0; j < s.Depth; j++)
+                _occupied[i, j] = false;
 
 
             _maxWidth = s.Width;
@@ -32,7 +42,7 @@ namespace IOships
         {
             float sum = GetOccupiedTilesCount();
 
-            var percentageFilled = (int)(sum / (_maxWidth * _maxDepth) * 100);
+            var percentageFilled = (int) (sum / (_maxWidth * _maxDepth) * 100);
 
             return percentageFilled;
         }
@@ -61,9 +71,9 @@ namespace IOships
                 return false;
 
             for (var i = x; i < x + c.Width; i++)
-                for (var j = y; j < y + c.Depth; j++)
-                    if (_occupied[i, j])
-                        return false;
+            for (var j = y; j < y + c.Depth; j++)
+                if (_occupied[i, j])
+                    return false;
 
             return true;
         }
@@ -71,15 +81,15 @@ namespace IOships
         public void Occupy(Container container, int x, int y)
         {
             for (var i = x; i < x + container.Width; i++)
-                for (var j = y; j < y + container.Depth; j++)
-                    _occupied[i, j] = true;
+            for (var j = y; j < y + container.Depth; j++)
+                _occupied[i, j] = true;
 
-            Instructions.Add(new Coords { X = x, Y = y }, container.ID);
+            Instructions.Add(new Coords {X = x, Y = y}, container.ID);
         }
 
         public IEnumerable<string> RowVisualisation()
         {
-            for (var i=0; i<_maxDepth; i++)
+            for (var i = 0; i < _maxDepth; i++)
             {
                 var row = "";
                 for (var j = 0; j < _maxWidth; j++)
@@ -94,7 +104,11 @@ namespace IOships
         }
     }
 
-    public enum LoadingMode { Iterative, Random }
+    public enum LoadingMode
+    {
+        Iterative,
+        Random
+    }
 
     /// <summary>
     /// Interface which needs to be implemented by all collectionwise strategies that ships can take to load cargo
@@ -117,7 +131,8 @@ namespace IOships
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships,
+            ContainersCollection containers)
         {
             Logger.Trace("Starting data generation");
 
@@ -128,24 +143,76 @@ namespace IOships
             {
                 var helper = new InstructionsHelper(s);
 
-                for(int i=0; i<20; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     int id = r.Next(containers.Count - 1);
                     int x = r.Next(s.Width - 1);
                     int y = r.Next(s.Depth - 1);
 
-                    if (helper.CanOccupy(containers[id], x, y))
-                    {
-                        helper.Occupy(containers[id], x, y);
-                        containers.RemoveAt(id);
-                    }
+                    if (!helper.CanOccupy(containers[id], x, y))
+                        continue;
+
+                    helper.Occupy(containers[id], x, y);
+                    containers.RemoveAt(id);
                 }
 
                 res.Add(s.ID, helper);
             }
+
             Logger.Trace("Finished data generation");
             return res;
         }
     }
 
+    public class IterativeStrategy : IStrategy
+    {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
+        {
+            Logger.Trace("Starting data generation");
+
+            var sorter = new Tools.ContainerSorter();
+            var sorted = sorter.OrderBy("Size").Sort(containers);
+            sorted.Reverse();
+
+            Dictionary<int, InstructionsHelper> res = new Dictionary<int, InstructionsHelper>();
+            foreach (Ship s in ships)
+            {
+                InstructionsHelper helper = FillShip(containers, s);
+
+                res.Add(s.ID, helper);
+            }
+
+            Logger.Trace("Finished data generation");
+            return res;
+        }
+
+        private static InstructionsHelper FillShip(ContainersCollection containers, Ship s)
+        {
+            var helper = new InstructionsHelper(s);
+
+            for (var y = 0; y < s.Depth; y++)
+            {
+                for (var x = 0; x < s.Width; x++)
+                {
+                    if (helper.IsOccupied(x, y))
+                        continue;
+
+                    for (var i = 0; i < containers.Count; i++)
+                    {
+                        var c = containers[i];
+
+                        if (!helper.CanOccupy(c, x, y))
+                            continue;
+
+                        helper.Occupy(c, x, y);
+                        containers.Remove(c);
+                    }
+                }
+            }
+
+            return helper;
+        }
+    }
 }

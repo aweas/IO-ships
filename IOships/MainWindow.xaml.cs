@@ -18,6 +18,7 @@ namespace IOships
     // ReSharper disable once UnusedMember.Global
     public partial class MainWindow
     {
+        
         public SeriesCollection SeriesCollection { get; set; }
 
         public List<IStrategy> AvailableStrategies { get; set; }
@@ -46,7 +47,7 @@ namespace IOships
             for (int i = 0; i < 5; i++)
                 _cargoShips.Add(32, 20);
 
-            _cargoShips.DataGenStrategy = new RandomCollectionStrategy();
+            _cargoShips.DataGenStrategy = new IterativeStrategy();
 
 #if MINIMUM_MODE
             Hide();

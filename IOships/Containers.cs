@@ -10,8 +10,8 @@ namespace IOships
     /// </summary>
     public struct Container
     {
-        public readonly int Width;
-        public readonly int Depth;
+        public int Width { get; }
+        public int Depth { get; }
         public int Size => Width * Depth;
 
         public readonly Guid ID;

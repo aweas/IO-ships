@@ -1,50 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using IOships;
 
-namespace IOships
+namespace Tools
 {
-    class Tools
+
+    public interface ISorter<T>
     {
-        public interface ISorter<T>
+        List<T> Sort(List<T> t);
+    }
+
+    public class ContainerSorter : ISorter<Container>
+    {
+        private PropertyInfo _property;
+
+        private int GetValue(Container c)
         {
-            List<T> Sort(List<T> t);
+            return (int) _property.GetValue(c, null);
         }
 
-        public class ContainerSorter : ISorter<Container>
+        private void QuickSort(IList<Container> array, int left, int right)
         {
-            private static void QuickSort(IList<Container> array, int left, int right)
+            var i = left;
+            var j = right;
+            Container pivot = array[(left + right) / 2];
+
+            while (i < j)
             {
-                //int Size = (int)typeof(Container).GetProperty("Year")?.GetValue(array[0], null);
-
-                var i = left;
-                var j = right;
-                Container pivot = array[(left + right) / 2];
-
-                while (i < j)
+                while (GetValue(array[i]) < GetValue(pivot)) i++;
+                while (GetValue(array[j]) > GetValue(pivot)) j--;
+                if (i <= j)
                 {
-                    while (array[i].TurnCreated < pivot.Size) i++;
-                    while (array[j].Size > pivot.Size) j--;
-                    if (i <= j)
-                    {
-                        var tmp = array[i];
-                        array[i++] = array[j];
-                        array[j--] = tmp;
-                    }
+                    var tmp = array[i];
+                    array[i++] = array[j];
+                    array[j--] = tmp;
                 }
-
-                if (left < j) QuickSort(array, left, j);
-                if (i < right) QuickSort(array, i, right);
             }
 
-            public List<Container> Sort(List<Container> t)
-            {
-                List<Container> result = t;
-                QuickSort(result, 0, t.Count - 1);
-                return result;
-            }
+            if (left < j) QuickSort(array, left, j);
+            if (i < right) QuickSort(array, i, right);
+        }
+
+        public ContainerSorter OrderBy(string propertyName)
+        {
+            _property = typeof(Container).GetProperty(propertyName);
+            return this;
+        }
+
+
+        public List<Container> Sort(List<Container> t)
+        {
+            List<Container> result = t;
+            QuickSort(result, 0, t.Count - 1);
+            return result;
         }
     }
+    
 }
