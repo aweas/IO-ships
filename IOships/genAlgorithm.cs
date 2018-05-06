@@ -85,8 +85,7 @@ namespace IOships
             }
         }
 
-        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships,
-            ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ref ContainersCollection containers)
         {
             this._ships = ships;
             this._containers = containers;

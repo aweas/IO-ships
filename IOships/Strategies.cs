@@ -8,6 +8,12 @@ namespace IOships
     {
         public int X;
         public int Y;
+
+        public Coords(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
     }
 
     public class InstructionsHelper
@@ -85,7 +91,7 @@ namespace IOships
             for (var j = y; j < y + container.Depth; j++)
                 _occupied[i, j] = true;
 
-            Instructions.Add(new Coords {X = x, Y = y}, container.ID);
+            Instructions.Add(new Coords(x, y), container.ID);
         }
 
         public IEnumerable<string> RowVisualisation()
@@ -94,7 +100,13 @@ namespace IOships
             {
                 var row = "";
                 for (var j = 0; j < _maxWidth; j++)
-                    row += _occupied[j, i] ? "1" : "0";
+                {
+                    if (Instructions.Keys.Contains(new Coords(j, i)))
+                        row += "X ";
+                    else
+                        row += _occupied[j, i] ? "1 " : "0 ";
+                }
+
                 yield return row;
             }
         }
@@ -122,7 +134,7 @@ namespace IOships
         /// <param name="ships">Collection of ships that wants to generate data</param>
         /// <param name="containers">Collection of containers that will be available</param>
         /// <returns>Dictionary of ship ID's and list of their containers</returns>
-        Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers);
+        Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ref ContainersCollection containers);
     }
 
     /// <summary>
@@ -132,8 +144,7 @@ namespace IOships
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships,
-            ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ref ContainersCollection containers)
         {
             Logger.Trace("Starting data generation");
 
@@ -169,16 +180,13 @@ namespace IOships
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ContainersCollection containers)
+        public Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ref ContainersCollection containers)
         {
             Logger.Trace("Starting data generation");
 
-            //var sorter = new Tools.ContainerSorter();
-            //var sorted = sorter.OrderBy("Size").Sort(containers);
-            //sorted.Reverse();
+            List<Container> sorted = containers.OrderBy(s => s.TurnCreated).ThenByDescending(s => s.Size).ToList();
 
-            //sorted = containers.OrderBy(s => s.TurnCreated).ThenBy(s => s.Size).ToList();
-            //TODO: Sort containers
+            containers.RecreateFromList(sorted);
 
             Dictionary<int, InstructionsHelper> res = new Dictionary<int, InstructionsHelper>();
             foreach (Ship s in ships)

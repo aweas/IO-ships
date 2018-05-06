@@ -180,7 +180,7 @@ namespace IOships
                 throw new NullReferenceException("Loading strategy not chosen");
 
             Logger.Debug("Loading containers collectionwise");
-            Dictionary<int, InstructionsHelper> res = DataGenStrategy.GenerateData(this, containers);
+            Dictionary<int, InstructionsHelper> res = DataGenStrategy.GenerateData(this, ref containers);
 
             foreach (var i in res.Keys)
             {

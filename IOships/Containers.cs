@@ -121,5 +121,12 @@ namespace IOships
                 if (c.ID == ID)
                     Remove(c);
         }
+
+        public void RecreateFromList(List<Container> listToRead)
+        {
+            Clear();
+            foreach (var c in listToRead)
+                Add(c);
+        }
     }
 }
