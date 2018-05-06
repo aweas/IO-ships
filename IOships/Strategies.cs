@@ -102,9 +102,9 @@ namespace IOships
                 for (var j = 0; j < _maxWidth; j++)
                 {
                     if (Instructions.Keys.Contains(new Coords(j, i)))
-                        row += "X ";
+                        row += "X";
                     else
-                        row += _occupied[j, i] ? "1 " : "0 ";
+                        row += _occupied[j, i] ? "1" : "0";
                 }
 
                 yield return row;

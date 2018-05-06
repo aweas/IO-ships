@@ -15,7 +15,8 @@
                 <ComboBoxItem Content="Collectionwise"/>
             </ComboBox>
         </StatusBar>
-        <Border BorderBrush="#534e63" BorderThickness="1,1,1,1" CornerRadius="16,16,8,8" Background="#645f72" Margin="4.6,0,0,0" Grid.RowSpan="2" Grid.Column="1">
+        <Border BorderBrush="#534e63" BorderThickness="1,1,1,1" CornerRadius="16,16,8,8" Background="#645f72" Margin="4.6,0,0,0"
+                Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
             <Grid Margin="0.2,0.2,0.2,-0.8"  x:Name="shipDataGrid" x:FieldModifier="public">
                 <Grid.Resources>
                     <Style TargetType="lvc:Axis">
@@ -39,17 +40,22 @@
                     <RowDefinition Height="70*"/>
                     <RowDefinition Height="70*"/>
                 </Grid.RowDefinitions>
-                <Border Grid.Column="1" BorderBrush="#9794a1" Grid.RowSpan="6" BorderThickness="2, 0, 0, 0" Grid.ColumnSpan="2" Margin="0,0,0,0"/>
-                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="0" BorderThickness="0, 0, 0, 2" Margin="0,0,0,0"/>
-                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="1" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
-                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="2" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
-                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="3" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
-                <Border Grid.ColumnSpan="3" BorderBrush="#9794a1" Grid.Row="4" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
-                <Label x:Name="label" Content="Ship dimensions" Margin="0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Height="28" HorizontalAlignment="Center"/>
-                <Label x:Name="label_Copy" Content="Containters taken" Margin="0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Grid.Column="1" Height="26" HorizontalAlignment="Center" Grid.ColumnSpan="2"/>
+                <Border Grid.ColumnSpan="2" Grid.Column="1" BorderBrush="#9794a1" BorderThickness="2, 0, 0, 0" Margin="0,0,0,0" Grid.RowSpan="6" />
+                <Border Grid.ColumnSpan="3" Grid.Column="0" BorderBrush="#9794a1" Grid.Row="0" BorderThickness="0, 0, 0, 2" Margin="0,0,0,0"/>
+                <Border Grid.ColumnSpan="3" Grid.Column="0" BorderBrush="#9794a1" Grid.Row="1" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
+                <Border Grid.ColumnSpan="3" Grid.Column="0" BorderBrush="#9794a1" Grid.Row="2" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
+                <Border Grid.ColumnSpan="3" Grid.Column="0" BorderBrush="#9794a1" Grid.Row="3" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
+                <Border Grid.ColumnSpan="3" Grid.Column="0" BorderBrush="#9794a1" Grid.Row="4" BorderThickness="0, 0, 0, 1" Margin="0,0,0,0"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="HMS Elizabeth" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" VerticalAlignment="Center"/>
+                <Label Grid.Row="2" Grid.Column="0" Content="CNS Corkscrew" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" VerticalAlignment="Center"/>
+                <Label Grid.Row="3" Grid.Column="0" Content="S.M.U 1437" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" VerticalAlignment="Center"/>
+                <Label Grid.Row="4" Grid.Column="0" Content="S.M.H Screw" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" VerticalAlignment="Center"/>
+                <Label Grid.Row="5" Grid.Column="0" Content="HMS Defenseless" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" VerticalAlignment="Center"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="Ship name" Margin="0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Height="28" HorizontalAlignment="Center"/>
+                <Label Grid.Row="0" Content="Containters taken" Margin="0" VerticalAlignment="Top" Foreground="White" FontFamily="Segoe UI Semibold" FontSize="14" HorizontalContentAlignment="Center" Grid.Column="1" Height="26" HorizontalAlignment="Center" Grid.ColumnSpan="2"/>
             </Grid>
         </Border>
-        <Grid Height="70" Margin="0,5,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2">
+        <Grid Height="70" Margin="0,5,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="2">
             <Button Background="#534e63" TextBlock.TextAlignment="Center" BorderThickness="0" x:Name="btn_ship" Content="SHIP&#xA;GOODS" Margin="336,10,336.8,10" Foreground="White" FontStyle="Normal" FontSize="14" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Width="76" Height="50" VerticalAlignment="Bottom" MinWidth="76" MinHeight="50" Click="btn_ship_Click"/>
         </Grid>
         <Label x:Name="label_Copy1" Content="CARGO&#xD;&#xA;MANAGER" VerticalAlignment="Top" Foreground="White" FontFamily="Berlin Sans FB" FontSize="48" HorizontalAlignment="Left" Height="162" Width="374" Grid.RowSpan="2"/>
