@@ -10,9 +10,9 @@
     <Grid Background="#2f2c38">
         <StatusBar Margin="0,0,0,-0.4" HorizontalContentAlignment="Right" FlowDirection="LeftToRight" Grid.Row="2" Grid.ColumnSpan="2" Height="24" VerticalAlignment="Bottom">
             <Label x:Name="lbl_status" Content="Cargo ready to be shipped" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="5,0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
-            <ComboBox x:Name="cb_mode" Width="120" HorizontalAlignment="Left" SelectedIndex="0" Height="24" Margin="0,-2,0,0">
-                <ComboBoxItem Content="Elementwise"/>
-                <ComboBoxItem Content="Collectionwise"/>
+            <ComboBox x:Name="cb_mode" Width="120" HorizontalAlignment="Left" SelectedIndex="0" Height="24" Margin="0,-2,0,0" DropDownClosed="cb_mode_DropDownClosed">
+                <local:IterativeStrategy/>
+                <local:GenAlgorithm/>
             </ComboBox>
         </StatusBar>
         <Border BorderBrush="#534e63" BorderThickness="1,1,1,1" CornerRadius="16,16,8,8" Background="#645f72" Margin="4.6,0,0,0"

@@ -116,5 +116,10 @@ namespace IOships
 
             throw new NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            return "Genetic";
+        }
     }
 }

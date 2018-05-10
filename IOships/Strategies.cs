@@ -6,8 +6,8 @@ namespace IOships
 {
     public struct Coords
     {
-        public int X;
-        public int Y;
+        public readonly int X;
+        public readonly int Y;
 
         public Coords(int x, int y)
         {
@@ -135,8 +135,11 @@ namespace IOships
         /// <param name="containers">Collection of containers that will be available</param>
         /// <returns>Dictionary of ship ID's and list of their containers</returns>
         Dictionary<int, InstructionsHelper> GenerateData(CargoShipCollection ships, ref ContainersCollection containers);
+
+        string ToString();
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Placeholder strategy for collectionwise data generation
     /// </summary>
@@ -225,6 +228,11 @@ namespace IOships
             }
 
             return helper;
+        }
+
+        public override string ToString()
+        {
+            return "Iterative";
         }
     }
 }
