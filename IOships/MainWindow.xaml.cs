@@ -113,11 +113,10 @@ namespace IOships
         {
             //Make sure that only one summary window exists
             _ss?.Close();
-            var mode = cb_mode.SelectedIndex;
 
             ((Button) sender).IsEnabled = false;
 
-            new Task(() => GenerateLoadingInstructions(mode)).Start();
+            new Task(GenerateLoadingInstructions).Start();
 
             lbl_status.Content = "Instructions generation in process";
 
@@ -133,10 +132,10 @@ namespace IOships
         /// <summary>
         /// Function that generates instruction for each ship and displays it in summary screen
         /// </summary>
-        private async void GenerateLoadingInstructions(int mode)
+        private async void GenerateLoadingInstructions()
         {
             Logger.Info("Loading instructions generation started");
-            Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers((LoadingMode) mode, _containers);
+            Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
 
             Dictionary<int, InstructionsHelper> results = await res;
 
@@ -161,6 +160,11 @@ namespace IOships
                 UpdatePie();
             }));
             Logger.Info("Loading instructions generation finished");
+        }
+
+        private void cb_mode_DropDownClosed(object sender, EventArgs e)
+        {
+            _cargoShips.DataGenStrategy = (IStrategy) cb_mode.SelectedItem;
         }
     }
 }

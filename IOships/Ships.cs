@@ -173,8 +173,7 @@ namespace IOships
             _iterator++;
         }
 
-        public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(LoadingMode mode,
-            ContainersCollection containers)
+        public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(ContainersCollection containers)
         {
             if (DataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
