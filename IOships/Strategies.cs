@@ -24,9 +24,19 @@ namespace IOships
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
-        public readonly Dictionary<Coords, Guid> Instructions;
+        public readonly Dictionary<Coords, Guid> Instructions;		// why readonly tho ( we need to modify it in specimens in GA >:/ )
 
-        public bool IsOccupied(int x, int y)
+		public int GetWidth()
+		{
+			return _maxWidth;
+		}
+
+		public int GetDepth()
+		{
+			return _maxDepth;
+		}
+
+		public bool IsOccupied(int x, int y)
         {
             return _occupied[x, y];
         }
@@ -88,11 +98,33 @@ namespace IOships
         public void Occupy(Container container, int x, int y)
         {
             for (var i = x; i < x + container.Width; i++)
-            for (var j = y; j < y + container.Depth; j++)
-                _occupied[i, j] = true;
+				for (var j = y; j < y + container.Depth; j++)
+					_occupied[i, j] = true;
 
             Instructions.Add(new Coords(x, y), container.ID);
         }
+
+		public Coords OccupantCoords(Container container)
+		{
+			/* TODO: finish implementation */
+
+			throw new NotImplementedException();
+
+			//return new Coords(1, 1);
+		}
+
+		public void RemoveOccupant(Container container)
+		{
+			Coords _coords = OccupantCoords(container);
+			int x = _coords.X;
+			int y = _coords.Y;
+
+			for (var i = x; i < x + container.Width; i++)
+				for (var j = y; j < y + container.Depth; j++)
+					_occupied[i, j] = false;
+
+			Instructions.Remove(new Coords(x, y));
+		}
 
         public IEnumerable<string> RowVisualisation()
         {

@@ -11,49 +11,63 @@ namespace IOships
     {
         private CargoShipCollection _ships;
         private ContainersCollection _containers;
-
-        struct Specimen
+		
+		struct Specimen
         {
             private double _fitness;
             private readonly List<InstructionsHelper> _shipCargo;
+			private Random _rng;
 
-            ///<summary>
-            /// Initialiyes specimen with its cargo holds/ships representation
-            ///</summary>
-            public Specimen(CargoShipCollection ships)
+			///<summary>
+			/// Initializes specimen with its cargo holds/ships representation
+			///</summary>
+			public Specimen(CargoShipCollection ships)
             {
                 _fitness = 0;
                 _shipCargo = new List<InstructionsHelper>();
+				_rng = new Random();
 
-                foreach (var ship in ships)
-                {
+				foreach (var ship in ships)
                     _shipCargo.Add(new InstructionsHelper(ship));
-                }
             }
 
             ///<summary>
-            /// Allocates not allocated containers randomly throught all ships after crossover
+            /// Allocates not yet allocated containers randomly throught all ships after crossover
             ///</summary>
             ///<param name="containers">Requires list of all containers, doesn't duplicate containers in hold</param>
             public void Repair(ContainersCollection containers)
             {
+				int shipAmount = _shipCargo.Count;
+
                 foreach (var c in containers)
                 {
-                    var found = false;
+                    var contFound = false;
 
                     Container container = c;
                     foreach (var ship in _shipCargo)
                     {
                         if (!ship.IsContPresent(container.ID)) continue;
 
-                        found = true;
+						contFound = true;
                         break;
                     }
 
-                    if (!found)
+                    if (!contFound)
                     {
-                        /* TODO: randomize container location checking if can occupy, also check if there's still space anywhere */
-                        throw new NotImplementedException();
+						InstructionsHelper shipSel = _shipCargo[_rng.Next(shipAmount)];		// not sure if referencing or copied
+						int x, y;
+
+						do
+						{
+							x = _rng.Next(shipSel.GetWidth());
+							y = _rng.Next(shipSel.GetDepth());
+						}
+						while (!shipSel.CanOccupy(c, x, y));
+
+						shipSel.Occupy(c,x,y);												// once again - check if shipSel is a reference or copy
+
+						/* TODO: add "no space left" check */
+						throw new NotImplementedException();
                     }
                 }
             }
@@ -63,7 +77,8 @@ namespace IOships
             ///</summary>
             public void Mutate()
             {
-                /* TODO: redistribute random amount of containers throught ships checking if can occupy */
+
+                /* TODO: redistribute (delete fev containers and use repair) random amount of containers throught ships checking if can occupy */
 
                 throw new NotImplementedException();
             }
