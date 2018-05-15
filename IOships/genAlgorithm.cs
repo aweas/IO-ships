@@ -54,8 +54,8 @@ namespace IOships
 
                     if (!contFound)
                     {
-						InstructionsHelper shipSel = _shipCargo[_rng.Next(shipAmount)];		// not sure if referencing or copied
-						int x, y;
+						int x, y, index = _rng.Next(shipAmount);
+						InstructionsHelper shipSel = _shipCargo[index];		// not sure if referencing or copied
 
 						do
 						{
@@ -64,7 +64,9 @@ namespace IOships
 						}
 						while (!shipSel.CanOccupy(c, x, y));
 
-						shipSel.Occupy(c,x,y);												// once again - check if shipSel is a reference or copy
+						shipSel.Occupy(c,x,y);                                              // once again - check if shipSel is a reference or copy
+
+						_shipCargo[index] = shipSel;
 
 						/* TODO: add "no space left" check */
 						throw new NotImplementedException();

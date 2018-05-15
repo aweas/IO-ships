@@ -24,7 +24,7 @@ namespace IOships
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
-        public readonly Dictionary<Coords, Guid> Instructions;		// why readonly tho ( we need to modify it in specimens in GA >:/ )
+        public Dictionary<Coords, Guid> Instructions;		// why readonly tho ( we need to modify it in specimens in GA >:/ )
 
 		public int GetWidth()
 		{

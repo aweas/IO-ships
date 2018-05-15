@@ -1,6 +1,6 @@
 ﻿// Enables minimum mode for testing algorithms
 
-//#define MINIMUM_MODE
+#define MINIMUM_MODE
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ namespace IOships
             _containers.LoadCsv("containers.csv", _turn);
 
             for (int i = 0; i < 5; i++)
-                _cargoShips.Add(100, 100);
+                _cargoShips.Add(32, 30);
 
             _cargoShips.DataGenStrategy = new IterativeStrategy();
 
@@ -56,7 +56,7 @@ namespace IOships
 
             // Make sure program closes after SS is closed
             _ss.SyncronizationClosedEvent += delegate { Close(); };
-            GenerateLoadingInstructions((int) LoadingMode.Random); // Right now the argument does not change anything
+            GenerateLoadingInstructions(); // Right now the argument does not change anything
 #else
             UpdatePie();
 #endif
