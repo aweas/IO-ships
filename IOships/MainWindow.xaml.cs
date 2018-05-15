@@ -45,7 +45,7 @@ namespace IOships
             _containers.LoadCsv("containers.csv", _turn);
 
             for (int i = 0; i < 5; i++)
-                _cargoShips.Add(32, 20);
+                _cargoShips.Add(100, 100);
 
             _cargoShips.DataGenStrategy = new IterativeStrategy();
 
