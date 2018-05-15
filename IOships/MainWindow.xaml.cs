@@ -18,6 +18,7 @@ namespace IOships
     // ReSharper disable once UnusedMember.Global
     public partial class MainWindow
     {
+        
         public SeriesCollection SeriesCollection { get; set; }
 
         public List<IStrategy> AvailableStrategies { get; set; }
@@ -42,7 +43,7 @@ namespace IOships
             _containers = new ContainersCollection();
 
             Tools.ContainerGenerator.Generate();
-            _containers.LoadCsv("containers.csv", _turn);
+            _containers.LoadCsv("containers.csv", _turn);         
 
             for (int i = 0; i < 5; i++)
                 _cargoShips.Add(100, 100);
@@ -134,38 +135,31 @@ namespace IOships
         private async void GenerateLoadingInstructions()
         {
             Logger.Info("Loading instructions generation started");
-            try
+            Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
+
+            Dictionary<int, InstructionsHelper> results = await res;
+
+            foreach (var ID in results.Keys)
             {
-                Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
+                _ss.AddToMessage($"\n\n-----------------{ID}-----------------");
+                _ss.AddToMessage($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
+                _ss.AddToMessage(
+                    $"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{_cargoShips[ID].Width * _cargoShips[ID].Depth}\n");
 
-                Dictionary<int, InstructionsHelper> results = await res;
+                foreach (Coords coords in results[ID].Instructions.Keys)
+                    _ss.AddToMessage($"\n{coords.X}, {coords.Y}:\t{results[ID].Instructions[coords]}");
 
-                foreach (var ID in results.Keys)
-                {
-                    _ss.AddToMessage($"\n\n-----------------{ID}-----------------");
-                    _ss.AddToMessage($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
-                    _ss.AddToMessage(
-                        $"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{_cargoShips[ID].Width * _cargoShips[ID].Depth}\n");
-
-                    foreach (Coords coords in results[ID].Instructions.Keys)
-                        _ss.AddToMessage($"\n{coords.X}, {coords.Y}:\t{results[ID].Instructions[coords]}");
-
-                    foreach (var row in results[ID].RowVisualisation())
-                        _ss.AddToMessage($"\n{row}");
-                }
-
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
-                {
-                    lbl_status.Content = "Cargo ready to be shipped";
-                    btn_ship.IsEnabled = true;
-                    UpdatePie();
-                }));
-                Logger.Info("Loading instructions generation finished");
+                foreach (var row in results[ID].RowVisualisation())
+                    _ss.AddToMessage($"\n{row}");
             }
-            catch (NotImplementedException exc)
+
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
             {
-                MessageBox.Show("Not yet implemented, sorry");
-            }
+                lbl_status.Content = "Cargo ready to be shipped";
+                btn_ship.IsEnabled = true;
+                UpdatePie();
+            }));
+            Logger.Info("Loading instructions generation finished");
         }
 
         private void cb_mode_DropDownClosed(object sender, EventArgs e)
