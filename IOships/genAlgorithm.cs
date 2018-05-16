@@ -9,9 +9,15 @@ namespace IOships
     /// </summary>
     class GenAlgorithm : IStrategy
     {
+		private int SpecAmount = 100;
         private CargoShipCollection _ships;
         private ContainersCollection _containers;
-		
+		private List<Specimen> _specimen;
+
+		/// <summary>
+		/// Struct representing a solution, holds set of instructions 
+		/// for container placement and fitness of such solution
+		/// </summary>
 		struct Specimen
         {
             private double _fitness;
@@ -30,6 +36,15 @@ namespace IOships
 				foreach (var ship in ships)
                     _shipCargo.Add(new InstructionsHelper(ship));
             }
+
+			/// <summary>
+			/// Standard getter
+			/// </summary>
+			/// <returns></returns>
+			public double getFitness()
+			{
+				return _fitness;
+			}
 
             ///<summary>
             /// Allocates not yet allocated containers randomly throught all ships after crossover
@@ -64,7 +79,7 @@ namespace IOships
 						}
 						while (!shipSel.CanOccupy(c, x, y));
 
-						shipSel.Occupy(c,x,y);                                              // once again - check if shipSel is a reference or copy
+						shipSel.Occupy(c,x,y);								// once again - check if shipSel is a reference or copy
 
 						_shipCargo[index] = shipSel;
 
@@ -107,15 +122,19 @@ namespace IOships
             this._ships = ships;
             this._containers = containers;
 
+			/* TODO: create main evaluation loop - check best parameters */
+
             throw new NotImplementedException();
         }
 
-        public void InitialFill()
+        public void InitialFill()			/* TODO: make code more sane */
         {
-            /* TODO: use specimen.repair() to initially fill all ships */
+			for (int i = 0; i < SpecAmount; ++i)
+				_specimen.Add(new Specimen(_ships));
 
-            throw new NotImplementedException();
-        }
+			foreach(var spec in _specimen)	// theoretically InitialFill() should only be used once to 
+				spec.Repair(_containers);   // initialize, but adding repair *foreach* just in case
+		}
 
         public void Crossover()
         {
@@ -127,11 +146,12 @@ namespace IOships
             throw new NotImplementedException();
         }
 
-        public void EvaluateSpecimens()
-        {
-            /* TODO: use specimen.evaluate() on all specimen and then sort them accordingly */
+        public void EvaluateSpecimens()		/* TODO: check if sorting the right way (descending order) */
+		{
+			foreach(var spec in _specimen)
+				spec.Evaluate();
 
-            throw new NotImplementedException();
+			_specimen.Sort(delegate (Specimen x, Specimen y) { return x.getFitness().CompareTo(y.getFitness()); } );
         }
 
         public override string ToString()

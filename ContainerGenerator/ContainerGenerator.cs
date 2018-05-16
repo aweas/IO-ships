@@ -24,8 +24,8 @@ namespace ContainerGenerator
 
             for (int i = 0; i < amount; ++i)
                 Containers.Add(new Container(
-                    width: _SampleGaussian(_rng, 3, 0.5),
-                    depth: _SampleGaussian(_rng, 8, 1),
+                    width: _SampleGaussian(_rng, 2, 1),
+                    depth: _SampleGaussian(_rng, 3, 2),
                     turnCreated: null));
 
             if (!(filename is null))

@@ -104,18 +104,29 @@ namespace IOships
             Instructions.Add(new Coords(x, y), container.ID);
         }
 
+		public Coords NextOccupyableCoords(Container c, int x = 0, int y = 0)
+		{
+			for(int i = 0; i<_maxWidth; ++i)
+				for(int j = 0; j<_maxDepth; ++j)
+					if(CanOccupy(c,i,j))
+						return new Coords(i, j);
+
+			return new Coords(-1, -1);
+		}
+
 		public Coords OccupantCoords(Container container)
 		{
 			/* TODO: finish implementation */
 
-			throw new NotImplementedException();
-
-			//return new Coords(1, 1);
+			return new Coords(-1,-1);
 		}
 
 		public void RemoveOccupant(Container container)
 		{
 			Coords _coords = OccupantCoords(container);
+			if (_coords.X < 0 || _coords.Y < 0)
+				return;
+
 			int x = _coords.X;
 			int y = _coords.Y;
 
