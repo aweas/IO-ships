@@ -24,7 +24,7 @@ namespace IOships
         private readonly int _maxDepth;
         private int _occupiedTilesCount;
 
-        public Dictionary<Coords, Guid> Instructions;		// why readonly tho ( we need to modify it in specimens in GA >:/ )
+        public Dictionary<Coords, Guid> Instructions;
 
 		public int GetWidth()
 		{
@@ -114,23 +114,32 @@ namespace IOships
 			return new Coords(-1, -1);
 		}
 
-		public Coords OccupantCoords(Container container)
+		public Coords OccupantCoords(Container container)		/* TODO: check if error branch executes correctly */
 		{
-			/* TODO: finish implementation */
+			Coords entry;
 
-			return new Coords(-1,-1);
+			try                                                 // getting coords struct of selected container
+			{
+				entry = Instructions.FirstOrDefault(e => e.Value == container.ID).Key;  
+			}
+			catch(ArgumentNullException)
+			{
+				return new Coords(-1, -1);
+			}
+
+			return entry;
 		}
 
 		public void RemoveOccupant(Container container)
 		{
-			Coords _coords = OccupantCoords(container);
+			Coords _coords = OccupantCoords(container);			// checking if container was found in cargo (Instructions)
 			if (_coords.X < 0 || _coords.Y < 0)
 				return;
 
 			int x = _coords.X;
 			int y = _coords.Y;
 
-			for (var i = x; i < x + container.Width; i++)
+			for (var i = x; i < x + container.Width; i++)		// erasing container and coord occupying info from cargo
 				for (var j = y; j < y + container.Depth; j++)
 					_occupied[i, j] = false;
 
