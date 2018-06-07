@@ -11,10 +11,12 @@ namespace IOships
     {
 		private int _specAmount = 100;
 		private int _weakPerc = 60;
-		private float _mutationRatePerc = 0.01F;
+		private float _mutationRatePerc = 1;
+		private int cycles = 10;
         private CargoShipCollection _ships;
         private ContainersCollection _containers;
 		private List<Specimen> _specimens;
+		private Random _rng;
 
 		/// <summary>
 		/// Struct representing a solution, holds set of instructions 
@@ -23,8 +25,8 @@ namespace IOships
 		struct Specimen
         {
 			private double _fitness;
-            private readonly List<InstructionsHelper> _shipCargo;
 			private Random _rng;
+            public List<InstructionsHelper> _shipCargo;         /* TODO, optional: <- create a manipulator method and make private again */
 
 			///<summary>
 			/// Initializes specimen with its cargo holds/ships representation
@@ -53,7 +55,7 @@ namespace IOships
             ///</summary>
             ///<param name="containers">Requires list of all containers, doesn't duplicate containers in hold</param>
 			///<returns> Returns false if ran out of free space </returns>
-            public bool Repair(ContainersCollection containers) /* TODO: check all ships for space availiable and randomize from them */
+            public bool Repair(ContainersCollection containers) /* TODO, optional: check all ships for space availiable and randomize from them */
 			{
 				int shipAmount = _shipCargo.Count;
 
@@ -72,14 +74,14 @@ namespace IOships
 
                     if (!contFound)							// if not present put it in the next empty space (or random place) on a random (next) ship
                     {										
-						int x, y, index = _rng.Next(shipAmount); /* TODO: check all ships for space availiable and randomize only from them */
+						int x, y, index = _rng.Next(shipAmount); /* TODO, optional: check all ships for space availiable and randomize only from them */
 						InstructionsHelper shipSel = _shipCargo[index];
 						Coords coords = shipSel.NextOccupyableCoords(container);
 
 						if (coords.X < 0 || coords.Y < 0)   // alongside the coords used to check if theres even space available on the ship selected
 							return false;
 
-						do
+						do									/* TODO: change this super inefficent way of selecting a free space for a container */
 						{
 							x = _rng.Next(shipSel.GetWidth());
 							y = _rng.Next(shipSel.GetDepth());
@@ -99,8 +101,8 @@ namespace IOships
             ///<summary>
             /// Randomly redistributes a random amount of containers through ships
             ///</summary>														/* TODO: finish code */
-            public void Mutate()												/* TODO: make code more sane - amount of allocated containers doesn't change for the whole population - can be passed as an argument*/
-            {
+            public void Mutate()                                /* TODO, optional: make code more sane - amount of allocated containers doesn't change for the whole population - can be passed as an argument*/
+			{
 				int currentOccupiedAmount = 0, amount;
 
 				foreach(InstructionsHelper cargo in _shipCargo)					// counting amount of allocated containers
@@ -108,17 +110,14 @@ namespace IOships
 
 				amount = _rng.Next( Math.Min(30,currentOccupiedAmount) );		// amount of containers scheduled for redistribution
                 
-				for( int i = 0; i < amount; ++i )								/* TODO: remove *amount* of containers from a random ship, then use repair */
-				{																// selecting random ship each time
-					InstructionsHelper cargo = _shipCargo[ _rng.Next(_shipCargo.Count) ];
+				for( int i = 0; i < amount; ++i )								
+				{                                                               // selecting random ship each time
+		
+					/* TODO: remove *amount* of containers from a random ship, then use repair */
 
-
+		
 				}
-				
-				/* TODO: redistribute (delete fev containers and use repair) random amount of containers throught ships checking if can occupy */
-
-                throw new NotImplementedException();
-            }
+			}
 
             ///<summary>
             /// Recalculates specimen's fitness
@@ -141,20 +140,40 @@ namespace IOships
         {
             this._ships = ships;
             this._containers = containers;
+			Dictionary<int, InstructionsHelper> Solution = new Dictionary<int, InstructionsHelper>();
 
-			/* TODO: create main evaluation loop - check best parameters */
+			InitialFill();
 
-            throw new NotImplementedException();
+			for (var i = 0; i < cycles; ++i)
+			{
+				EvaluateSpecimens();
+				Crossover();
+			}
+
+			Specimen bestSpec = _specimens[0];
+			for(var i = 0; i < _ships.Count; ++i)
+				Solution.Add(i, bestSpec._shipCargo[i]);
+
+			return Solution;
         }
+
+		public GenAlgorithm()
+		{
+			_rng = new Random();
+			_specimens = new List<Specimen>();
+
+			for (int i = 0; i < _specAmount; ++i)
+				_specimens.Add(new Specimen(_ships));
+		}
 
 		/// <summary>
 		/// Initializes specimens randomly filling each of them with all the containers,
 		/// can be used to reinitialize algorithm after a purge
 		/// </summary>
-        public void InitialFill()			/* TODO: make code more sane */
-        {
+        private void InitialFill()                              /* TODO, optional: make code more sane */
+		{
 			for (int i = 0; i < _specAmount; ++i)
-				_specimens.Add(new Specimen(_ships));
+				_specimens[i] = new Specimen(_ships);
 
 			foreach(var spec in _specimens)	// theoretically InitialFill() should only be used once to 
 				spec.Repair(_containers);   // initialize, but adding repair *foreach* just in case
@@ -166,31 +185,42 @@ namespace IOships
 		/// <param name="A"></param>
 		/// <param name="B"></param>
 		/// <returns> Returns child specimen </returns>
-		private Specimen CreateChild(Specimen A, Specimen B)
+		private Specimen CreateChild(Specimen A, Specimen B)    /* TODO, optional: create a less lazy implementation - actually use the second specimen in child creation */
 		{
-			/* TODO: auxiliary function for creating a child; giving child one or more ships from each 
-			parent, checking for duplicates, randomly deleting them then repair solutions, or come up 
-			with a better crossover strategy */
+			int shAmount = _rng.Next(_ships.Count);
+			Specimen C = new Specimen(_ships);
 
+			for(var i = 0; i < shAmount; ++i)
+				C._shipCargo[i] = A._shipCargo[i];
 
-			return new Specimen(_ships);
+			C.Repair(_containers);
+
+			return C;
 		}
 
 		/// <summary>
 		/// Replaces weaker specimen with new ones, handles mutation
 		/// </summary>
-		public void Crossover()
+		private void Crossover()
         {
-			
-			/* TODO: use ChildCreate to replace weak specimen */
+			for(var i = _weakPerc; i < _specAmount; ++i)
+			{
+				Specimen A, B;
 
-			throw new NotImplementedException();
-        }
+				A = _specimens[ _rng.Next(_weakPerc) ];		// selects both parents from best suited specimens
+				B = _specimens[ _rng.Next(_weakPerc) ];
+
+				_specimens[i] = CreateChild(A,B);
+
+				if (_rng.Next(100) < _mutationRatePerc)		// mutationg if rng Gods allow it
+					_specimens[i].Mutate();
+			}	
+		}
 
 		/// <summary>
 		/// Evaluates all specimen, updating their fitness
 		/// </summary>
-        public void EvaluateSpecimens()		/* TODO: check if sorting the right way (descending order) */
+        private void EvaluateSpecimens()						/* TODO: check if sorting the right way (descending order) */
 		{
 			foreach(var spec in _specimens)
 				spec.Evaluate();

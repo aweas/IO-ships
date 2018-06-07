@@ -1,6 +1,6 @@
 ﻿// Enables minimum mode for testing algorithms
 
-#define MINIMUM_MODE
+//#define MINIMUM_MODE
 
 using System;
 using System.Collections.Generic;

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using LiveCharts;
 using LiveCharts.Wpf;
 using System.ComponentModel;
+using System.IO;
 
 namespace IOships
 {
@@ -173,7 +174,30 @@ namespace IOships
             _iterator++;
         }
 
-        public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(ContainersCollection containers)
+		/// <summary>
+		/// Loads ships from .csv files,
+		/// format: Width;Depth;
+		/// </summary>
+		/// <param name="filename">Path to .csv file</param>
+		public void LoadCsv(string filename)
+		{
+			using (var data = new StreamReader(filename))
+			{
+				data.ReadLine();
+				string line;
+				while ((line = data.ReadLine()) != null)
+				{
+					List<string> aux = line.Split(';').ToList();
+
+					var w  = int.Parse(aux[0]);
+					var d  = int.Parse(aux[1]);
+
+					Add(w, d);
+				}
+			}
+		}
+
+		public async Task<Dictionary<int, InstructionsHelper>> LoadContainers(ContainersCollection containers)
         {
             if (DataGenStrategy is null)
                 throw new NullReferenceException("Loading strategy not chosen");
