@@ -45,6 +45,7 @@ namespace IOships
         }
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// Provides wrapper for List of Containers so that new ships can be added seamlessly
     /// </summary>

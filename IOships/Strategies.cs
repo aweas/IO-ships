@@ -169,12 +169,6 @@ namespace IOships
         }
     }
 
-    public enum LoadingMode
-    {
-        Iterative,
-        Random
-    }
-
     /// <summary>
     /// Interface which needs to be implemented by all collectionwise strategies that ships can take to load cargo
     /// </summary>

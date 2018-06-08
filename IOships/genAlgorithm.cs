@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 
 namespace IOships
 {
@@ -9,6 +10,8 @@ namespace IOships
     /// </summary>
     class GenAlgorithm : IStrategy
     {
+        private readonly Logger log = NLog.LogManager.GetCurrentClassLogger();
+
 		private int _specAmount = 100;
 		private int _weakPerc = 60;
 		private float _mutationRatePerc = 1;
@@ -143,16 +146,18 @@ namespace IOships
 			Dictionary<int, InstructionsHelper> Solution = new Dictionary<int, InstructionsHelper>();
 
 			InitialFill();
-
+            log.Debug("Initial fill");
 			for (var i = 0; i < cycles; ++i)
 			{
 				EvaluateSpecimens();
 				Crossover();
 			}
+            log.Debug("Mutation and crossover done");
 
 			Specimen bestSpec = _specimens[0];
 			for(var i = 0; i < _ships.Count; ++i)
 				Solution.Add(i, bestSpec._shipCargo[i]);
+            log.Debug("Solution created");
 
 			return Solution;
         }
@@ -161,9 +166,6 @@ namespace IOships
 		{
 			_rng = new Random();
 			_specimens = new List<Specimen>();
-
-			for (int i = 0; i < _specAmount; ++i)
-				_specimens.Add(new Specimen(_ships));
 		}
 
 		/// <summary>
@@ -172,8 +174,9 @@ namespace IOships
 		/// </summary>
         private void InitialFill()                              /* TODO, optional: make code more sane */
 		{
+            _specimens.Clear();
 			for (int i = 0; i < _specAmount; ++i)
-				_specimens[i] = new Specimen(_ships);
+				_specimens.Add(new Specimen(_ships));
 
 			foreach(var spec in _specimens)	// theoretically InitialFill() should only be used once to 
 				spec.Repair(_containers);   // initialize, but adding repair *foreach* just in case

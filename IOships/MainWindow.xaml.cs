@@ -53,10 +53,11 @@ namespace IOships
             Hide();
             _ss = new SummaryScreen();
             _ss.Show();
+            _cargoShips.DataGenStrategy = new GenAlgorithm();
 
             // Make sure program closes after SS is closed
             _ss.SyncronizationClosedEvent += delegate { Close(); };
-            GenerateLoadingInstructions(); // Right now the argument does not change anything
+            GenerateLoadingInstructions();
 #else
             UpdatePie();
 #endif
