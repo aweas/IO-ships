@@ -129,5 +129,15 @@ namespace IOships
             foreach (var c in listToRead)
                 Add(c);
         }
+
+        public ContainersCollection GetAvailable(int turn)
+        {
+            var temp = new ContainersCollection();
+            foreach(var container in this)
+                if(container.TurnCreated<=turn)
+                    temp.Add(container);
+            
+            return temp;
+        }
     }
 }

@@ -66,7 +66,7 @@ namespace IOships
         private void UpdatePie()
         {
             SeriesCollection.Clear();
-            Dictionary<int, int> data = _containers.GetAgeAndCount(_turn);
+            Dictionary<int, int> data = _containers.GetAvailable(_turn).GetAgeAndCount(_turn);
 
             foreach (var key in data.Keys.Reverse())
             {
@@ -126,7 +126,7 @@ namespace IOships
             _turn++;
 
             Tools.ContainerGenerator.Generate();
-            _containers.LoadCsv("containers.csv", _turn);
+            //_containers.LoadCsv("containers.csv", _turn);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace IOships
             Logger.Info("Loading instructions generation started");
             try
             {
-                Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
+                Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers.GetAvailable(_turn));
 
                 Dictionary<int, InstructionsHelper> results = await res;
 
