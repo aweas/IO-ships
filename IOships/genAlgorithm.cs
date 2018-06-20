@@ -115,10 +115,7 @@ namespace IOships
                 
 				for( int i = 0; i < amount; ++i )								
 				{                                                               // selecting random ship each time
-		
 					/* TODO: remove *amount* of containers from a random ship, then use repair */
-
-		
 				}
 			}
 
