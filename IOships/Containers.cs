@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic.FileIO;
 
 namespace IOships
 {
@@ -11,7 +12,7 @@ namespace IOships
     /// </summary>
     public struct Container
     {
-        public ulong Timestamp { get; }
+        public int TurnCreated { get; }
         public readonly Guid ID;
         public int Width { get; }
         public int Depth { get; }
@@ -32,13 +33,13 @@ namespace IOships
         /// <summary>
         /// Creates container structure with given parameters
         /// </summary>
-        /// <param name="timestamp">Scheduled time of loading</param>
+        /// <param name="turnCreated">Scheduled time of loading</param>
         /// <param name="id">Container's unique id</param>
         /// <param name="width">Width of the container</param>
         /// <param name="depth">Depth of the container</param>
-        public Container(ulong timestamp, int id, int width, int depth)
+        public Container(int turnCreated, int id, int width, int depth)
         {
-            Timestamp = timestamp;
+            TurnCreated = turnCreated;
             Width = width;
             Depth = depth;
             ID = ToGuid(id);
@@ -50,9 +51,11 @@ namespace IOships
     /// </summary>
     public class ContainersCollection : List<Container>
     {
-        private void Add(ulong timestamp, int id, int width, int depth)
+        private NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private void Add(int turn, int id, int width, int depth)
         {
-            Add(new Container(timestamp, id, width, depth));
+            Add(new Container(turn, id, width, depth));
         }
 
         /* TODO: check for duplicates (nah - *hope* for no duplicates), checking whole list every time we add container is a waste of cycles */
@@ -62,35 +65,69 @@ namespace IOships
         /// <param name="filename">Path to .csv file</param>
         public void LoadCsv(string filename)
         {
-            using (var data = new StreamReader(filename))
+            //using (var data = new StreamReader(filename))
+            //{
+            //    string line;
+            //    ulong lastTimestamp = 0;
+            //    var i = 0;
+
+            //    while ((line = data.ReadLine()) != null)
+            //    {
+            //        line = line.Replace("[", "").Replace("]", "");
+
+            //        if (!Regex.IsMatch(line, @"^(\d+,){4}\d+$"))                            // would not hardcode ',' as a separator if not for the regex   
+            //            throw new FormatException("Improper format, line: " + i);           /* TODO: add all sorts of error messages everywhere */
+
+            //        List<string> aux = line.Split(',').ToList();
+
+            //        var ts = ulong.Parse(aux[0]);
+            //        var id = int.Parse(aux[1]);
+            //        var w = int.Parse(aux[2]);
+            //        var d = int.Parse(aux[3]);
+
+            //        if (w < 1 && w > 10 && d < 1 && d > 10)
+            //            throw new FormatException("Number(s) not in range, line: " + i);     /* TODO: same as above */
+
+            //        if (ts < lastTimestamp)
+            //            throw new FormatException("Incorrect load date, line: " + i);         /* TODO: again - errors, warnings etc. - you get the idea */
+
+            //        lastTimestamp = ts;
+            //        Add(ts, id, w, d);
+            //        ++i;
+            //    }
+            //}
+            using (TextFieldParser parser = new TextFieldParser(filename))
             {
-                string line;
-                ulong lastTimestamp = 0;
-                var i = 0;
+                int i = 0;
+                int turn = -1;
 
-                while ((line = data.ReadLine()) != null)
+                ulong lastTimestamp = ulong.MaxValue;
+
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                while (!parser.EndOfData)
                 {
-                    line = line.Replace("[", "").Replace("]", "");
+                    //Process row
+                    string[] fields = parser.ReadFields();
+                    if( fields.Length != 5)
+                        logger.Error($"Line {i}: Format error. Got {fields.Length} cells, expected 5");
 
-                    if (!Regex.IsMatch(line, @"^(\d+,){4}\d+$"))                            // would not hardcode ',' as a separator if not for the regex   
-                        throw new FormatException("Improper format, line: " + i);           /* TODO: add all sorts of error messages everywhere */
-
-                    List<string> aux = line.Split(',').ToList();
-
-                    var ts = ulong.Parse(aux[0]);
-                    var id = int.Parse(aux[1]);
-                    var w = int.Parse(aux[2]);
-                    var d = int.Parse(aux[3]);
+                    var ts = ulong.Parse(fields[0]);
+                    var id = int.Parse(fields[1]);
+                    var w = int.Parse(fields[2].TrimStart('['));
+                    var d = int.Parse(fields[3].TrimEnd(']'));
 
                     if (w < 1 && w > 10 && d < 1 && d > 10)
-                        throw new FormatException("Number(s) not in range, line: " + i);     /* TODO: same as above */
+                        logger.Error($"Line {i}: Number(s) not in range");
 
                     if (ts < lastTimestamp)
-                        throw new FormatException("Incorrect load date, line: " + i);         /* TODO: again - errors, warnings etc. - you get the idea */
+                        logger.Error($"Line {i}: Incorrect load date");
+
+                    if (ts != lastTimestamp)
+                        turn++;
 
                     lastTimestamp = ts;
-                    Add(ts, id, w, d);
-                    ++i;
+                    Add(turn, id, w, d);
                 }
             }
         }
@@ -100,7 +137,7 @@ namespace IOships
         /// </summary>
         /// <param name="currentTurn">Current turn in simulation</param>
         /// <returns>Dictionary of containers' age and count</returns>
-        /*public Dictionary<int, int> GetAgeAndCount(int currentTurn)   // TODO: delete or modify to fit the new implementation
+        public Dictionary<int, int> GetAgeAndCount(int currentTurn)   // TODO: delete or modify to fit the new implementation
         {
             Dictionary<int, int> ages = new Dictionary<int, int>();
 
@@ -115,7 +152,7 @@ namespace IOships
             }
 
             return ages;
-        }*/
+        }
 
         public override string ToString()
         {
