@@ -109,19 +109,28 @@ namespace IOships
                 {
                     //Process row
                     string[] fields = parser.ReadFields();
-                    if( fields.Length != 5)
-                        logger.Error($"Line {i}: Format error. Got {fields.Length} cells, expected 5");
+					if (fields.Length != 5)
+					{
+						logger.Error($"Line {i}: Format error. Got {fields.Length} cells, expected 5");
+						continue;
+					}
 
                     var ts = ulong.Parse(fields[0]);
                     var id = int.Parse(fields[1]);
-                    var w = int.Parse(fields[2].TrimStart('['));
-                    var d = int.Parse(fields[3].TrimEnd(']'));
+                    var w  = int.Parse(fields[2].TrimStart('['));
+                    var d  = int.Parse(fields[3].TrimEnd(']'));
 
-                    if (w < 1 && w > 10 && d < 1 && d > 10)
-                        logger.Error($"Line {i}: Number(s) not in range");
+					if (w < 1 && w > 10 && d < 1 && d > 10)
+					{
+						logger.Error($"Line {i}: Number(s) not in range");
+						continue;
+					}
 
-                    if (ts < lastTimestamp)
-                        logger.Error($"Line {i}: Incorrect load date");
+					if (ts < lastTimestamp)
+					{
+						logger.Error($"Line {i}: Incorrect load date");
+						continue;
+					}
 
                     if (ts != lastTimestamp)
                         turn++;
