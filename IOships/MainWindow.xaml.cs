@@ -1,9 +1,10 @@
 ﻿// Enables minimum mode for testing algorithms
 
-//#define MINIMUM_MODE
+#define MINIMUM_MODE
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -135,21 +136,26 @@ namespace IOships
         private async void GenerateLoadingInstructions()
         {
             Logger.Info("Loading instructions generation started");
+            _ss.SetFile("raport.txt");
+
             try
             {
                 Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
 
                 Dictionary<int, InstructionsHelper> results = await res;
 
+                
                 foreach (var ID in results.Keys)
                 {
-                    _ss.AddToMessage($"\n\n-----------------{ID}-----------------");
-                    _ss.AddToMessage($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
-                    _ss.AddToMessage(
+                    _ss.AddToMessageAndFile($"\n\n-----------------{ID}-----------------");
+                    _ss.AddToMessageAndFile($"\nPercentage filled: {results[ID].GetPercentageFilled()}%");
+                    _ss.AddToMessageAndFile(
                         $"\nTiles filled: {results[ID].GetOccupiedTilesCount()}/{_cargoShips[ID].Width * _cargoShips[ID].Depth}\n");
 
                     foreach (Coords coords in results[ID].Instructions.Keys)
-                        _ss.AddToMessage($"\n{coords.X}, {coords.Y}:\t{results[ID].Instructions[coords]}");
+                    {
+                        _ss.AddToMessageAndFile($"\n{coords.X}, {coords.Y}:\t{results[ID].Instructions[coords]}");
+                    }
 
                     foreach (var row in results[ID].RowVisualisation())
                         _ss.AddToMessage($"\n{row}");

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Threading;
 
 namespace IOships
@@ -22,8 +23,11 @@ namespace IOships
     public partial class SummaryScreen : Window
     {
         public ObservableString Message { get; set; }
+        private string _file;
 
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+        public void SetFile(string filename) => _file = filename;
 
         public SummaryScreen()
         {
@@ -38,6 +42,19 @@ namespace IOships
             Message.Add(msg);
 
             logger.Trace("Updated summary. New value: {0}", Message.Value);
+        }
+
+        public void AddToMessageAndFile(string msg)
+        {
+            if (_file == null)
+                throw new IOException("Filename not set!");
+
+            Message.Add(msg);
+
+            using (var f = new StreamWriter(_file, true))
+            {
+                f.Write(msg);
+            }
         }
 
         private void btn_ship_Click(object sender, RoutedEventArgs e)
