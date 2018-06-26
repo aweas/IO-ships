@@ -25,6 +25,7 @@ namespace IOships
 
         private readonly CargoShipCollection _cargoShips;
         private readonly ContainersCollection _containers;
+        private ContainersCollection _availableContainers;
         private int _turn;
 
         private SummaryScreen _ss;
@@ -43,7 +44,8 @@ namespace IOships
             _containers = new ContainersCollection();
 
             Tools.ContainerGenerator.Generate();
-            _containers.LoadCsv("containers.csv", _turn);
+            _containers.LoadCsv("DataInputGroupPT1440.csv");
+            _availableContainers = _containers.GetAvailable(_turn);
 
             for (int i = 0; i < 5; i++)
                 _cargoShips.Add(32, 30);
@@ -67,7 +69,7 @@ namespace IOships
         private void UpdatePie()
         {
             SeriesCollection.Clear();
-            Dictionary<int, int> data = _containers.GetAgeAndCount(_turn);
+            Dictionary<int, int> data = _availableContainers.GetAgeAndCount(_turn);
 
             foreach (var key in data.Keys.Reverse())
             {
@@ -124,10 +126,22 @@ namespace IOships
             _ss = new SummaryScreen();
             _ss.Show();
 
+            UpdateContainerCollection();
             _turn++;
+            _availableContainers = _containers.GetAvailable(_turn);
 
-            Tools.ContainerGenerator.Generate();
-            _containers.LoadCsv("containers.csv", _turn);
+            //Tools.ContainerGenerator.Generate();
+            //_containers.LoadCsv("containers.csv", _turn);
+        }
+
+        private void UpdateContainerCollection()
+        {
+            ContainersCollection reference = _containers.GetAvailable(_turn);
+            foreach (var container in reference)
+            {
+                if (!_availableContainers.Contains(container))
+                    _containers.Remove(container);
+            }
         }
 
         /// <summary>
@@ -140,7 +154,7 @@ namespace IOships
 
             try
             {
-                Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_containers);
+                Task<Dictionary<int, InstructionsHelper>> res = _cargoShips.LoadContainers(_availableContainers);
 
                 Dictionary<int, InstructionsHelper> results = await res;
 
